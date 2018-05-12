@@ -33,12 +33,7 @@ func init() {
 
 // Todo model
 type Todo struct {
-	ID      bson.ObjectId `bson:"_id" json:"id"`
-	Content string        `bson:"content" json:"content"`
-}
-
-// Note model
-type Note struct {
-	ID      bson.ObjectId `bson:"_id" json:"id"`
-	Content string        `bson:"content" json:"content"`
+	ID    bson.ObjectId `bson:"_id" form:"id" json:"id" `
+	Title string        `bson:"title" form:"title" json:"title" binding:"required"`
+	Note  string        `bson:"note" form:"note" json:"note"`
 }

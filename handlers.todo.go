@@ -6,9 +6,13 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+const (
+	collectionTodo = "toodles"
+)
+
 func getAllTodos(c *gin.Context) {
 	var todos []Todo
-	Mongo.C("todo").Find(bson.M{}).All(&todos)
+	Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todos}, "todos.html")
@@ -17,7 +21,7 @@ func getAllTodos(c *gin.Context) {
 func getATodo(c *gin.Context) {
 	id := c.Param("todo_id")
 	todo := Todo{}
-	Mongo.C("todo").FindId(bson.ObjectIdHex(id)).One(&todo)
+	Mongo.C(collectionTodo).FindId(bson.ObjectIdHex(id)).One(&todo)
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todo}, "todo.html")
@@ -25,9 +29,9 @@ func getATodo(c *gin.Context) {
 
 func createATodo(c *gin.Context) {
 	todo := Todo{}
-	c.BindJSON(&todo)
+	c.Bind(&todo)
 	todo.ID = bson.NewObjectId()
-	Mongo.C("todo").Insert(&todo)
+	Mongo.C(collectionTodo).Insert(&todo)
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todo}, "todo.html")
@@ -35,8 +39,8 @@ func createATodo(c *gin.Context) {
 
 func updateATodo(c *gin.Context) {
 	todo := Todo{}
-	c.BindJSON(&todo)
-	Mongo.C("todo").UpdateId(todo.ID, &todo)
+	c.Bind(&todo)
+	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todo}, "todo.html")
@@ -44,8 +48,8 @@ func updateATodo(c *gin.Context) {
 
 func deleteATodo(c *gin.Context) {
 	todo := Todo{}
-	c.BindJSON(&todo)
-	Mongo.C("todo").Remove(&todo)
+	id := c.Param("todo_id")
+	Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todo}, "todo.html")

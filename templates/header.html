@@ -1,0 +1,23 @@
+<!--header.html-->
+
+<!doctype html>
+<html>
+
+<head>
+  <!--Use the `title` variable to set the title of the page-->
+  <title>{{ .title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+
+  <!--Use bootstrap to make the application look nice-->
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+  <link rel="stylesheet" href="/assets/css/custom.css">
+  <script async src="/assets/js/bootstrap.js"></script>
+</head>
+
+<body class="text-center">
+  <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+
+    {{ template "menu.html" . }}
+    <div class="container">
+    <main role="main" class="inner cover">

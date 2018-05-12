@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+    golang:
+      image: golang
+      volumes:
+        - ~/.volumes/todogo:/usr/src/app
+      ports: 
+        - "3002:3002"
+
+    mongo: 
+      image: mongo
+      ports:
+        - "27017:27017"
+      volumes:
+        - ~/.volumes/mongo:/data/db
+      
+    mongo-express:
+      image: mongo-express
+      links:
+        - "mongo:mongo"
+      ports: 
+        - "8081:8081"
+      environment: 
+        - "ME_CONFIG_OPTIONS_EDITORTHEME=ambiance"
+        - "ME_CONFIG_BASICAUTH_USERNAME=admin"
+        - "ME_CONFIG_BASICAUTH_PASSWORD=password"
+
+volumes:
+    db_data:

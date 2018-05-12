@@ -1,0 +1,17 @@
+<!--index.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+<h2>Your Active Toodles</h2>
+
+<ul class="list-group">
+  {{range .payload }}
+  <a href="/todos/{{.ID.Hex}}">
+    <li class="list-group-item">{{.Content}}</li>
+  </a>
+  {{end}}
+</ul>
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}

@@ -3,7 +3,7 @@ package model
 import (
 	"log"
 
-	. "github.com/dlaub3/todo/config"
+	. "github.com/dlaub3/toodles/config"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 )

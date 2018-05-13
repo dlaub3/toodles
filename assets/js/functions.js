@@ -28,7 +28,7 @@ function deleteToodle(e, id) {
     })
     .then(data => { 
       if  (data.status == 200) {
-        var t = e.target;
+        let t = e.target;
         $(t).closest( "li" ).remove();
       }
     });
@@ -37,15 +37,14 @@ function deleteToodle(e, id) {
 function addToodle(e) {
     e.preventDefault();
 
-    let data = $("#add-toodle").serializeObject();
-    console.log(data);
+    let formData = $("#add-toodle").serializeObject();
     fetch("/todos", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(formData),
     })
     .then(response => { 
       if  (response.status == 200) {
@@ -60,6 +59,33 @@ function addToodle(e) {
     });
 }
 
+
+function updateToodle(e, id) {
+    e.preventDefault();
+
+    let t = e.target;
+    let formData = $(t).closest( "form" ).serializeObject();
+
+    fetch("/todos/" + id, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify(formData),
+    })
+    .then(response => { 
+      if  (response.status == 200) {
+        return response.json();
+      }
+    })
+    .then(data => {
+        console.log(data.id);
+        $(t).closest( "li" ).children(".title").text(data.title);
+        $(t).closest( "li" ).children("input[name=title]").val(data.title)
+        $(t).closest( "li" ).children("input[name=note]").val(data.note)
+    });
+}
 
 
 function getTootleHTML(id, title, note) {

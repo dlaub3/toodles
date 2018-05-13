@@ -12,6 +12,7 @@ body {
 
 .card, li {
     color: #443f3f;
+    margin-top: 15px;
 }
 
 .masthead a {

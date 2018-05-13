@@ -23,7 +23,10 @@
   {{range .payload }}
     <li class="list-group-item">
 
-      {{.Title}} 
+      <span class="title">
+          {{.Title}} 
+      </span>
+   
       
       <div class="abs-right">
 
@@ -48,7 +51,7 @@
                   <div class="form-group">
                       <input name="note" type="text" value="{{.Note}}" class="form-control" id="note" placeholder="{{.Note}}">
                   </div>
-                  <button type="submit" class="btn btn-success">Update</button>
+                  <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.ID.Hex}} )">Update</button>
               </form>
             </div>
         </div>

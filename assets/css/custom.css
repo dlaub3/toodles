@@ -65,16 +65,19 @@ label.expand {
     padding: 8px 0;
 }
 
-.icon-close:before {
+.icon-close {
     color: #ff4848;
-    content: "\f00d";
 }
 
-.formDelete {
+.icon-check {
+    color: #48ff48;
+}
+
+.formDelete, .formComplete {
     display: inline-block;
 }
 
-.formDelete button {
+.formDelete button, .formComplete button {
     background: inherit;
     outline: none;
     border: none;

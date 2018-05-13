@@ -30,6 +30,11 @@
       
       <div class="abs-right">
 
+        <form class="formComplete" action="/todos/{{.ID.Hex}}" method="post">
+            <input type="hidden" name="method" value="put">
+            <button type="submit" class="icon-check" onClick="complteToodle(event, {{.ID.Hex}})"></button>
+        </form>
+
         <form class="formDelete" action="/todos/{{.ID.Hex}}" method="post">
           <input type="hidden" name="method" value="delete">
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.ID.Hex}})"></button>

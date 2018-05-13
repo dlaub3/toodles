@@ -7,14 +7,14 @@
 
 <div class="card w-100 mb-4">
     <div class="card-body">
-<form  action="/todos" method="post">
+<form id="add-toodle" action="/todos" method="post">
     <div class="form-group">
         <input name="title" type="text" class="form-control" id="title" placeholder="Find the keys">
     </div>
     <div class="form-group">
         <input name="note" type="text" class="form-control" id="note" placeholder="Because I lost them two weeks ago.">
     </div>
-    <button type="submit" class="btn btn-dark">Add</button>
+    <button type="submit" class="btn btn-dark" onClick="addToodle(event)">Add</button>
 </form>
 </div>
 </div>
@@ -32,13 +32,13 @@
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.ID.Hex}})"></button>
         </form>
 
-        <label class="expand no-js-hide" data-toggle="collapse" data-target="#toodleEdit" aria-expanded="false" aria-controls="toodleEdit" onClick="() => e.preventDefault()">
+        <label class="expand no-js-hide" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit" onClick="() => e.preventDefault()">
             <input type="checkbox">
             <i class="icon-chevron-down"></i>
         </label>
       </div>
 
-        <div class="collapse show" id="toodleEdit">
+        <div class="collapse show" id="toodleEdit-{{.ID.Hex}}">
             <div class="card card-body">
                 <form action="/todos/{{.ID.Hex}}" method="post">
                   <input type="hidden" name="method" value="put">
@@ -56,23 +56,6 @@
 
   {{end}}
 </ul>
-<script>
-  function deleteToodle(e, id) {
-    e.preventDefault();
-    fetch("/todos/" + id, {
-      method: 'DELETE',
-      headers: {
-      'content-type': 'application/json'
-    },
-    })
-    .then(data => { 
-      if  (data.status == 200) {
-        var t = e.target;
-        $(t).closest( "li" ).remove();
-      }
-    });
-  }
-</script>
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

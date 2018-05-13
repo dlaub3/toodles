@@ -36,7 +36,6 @@ func updateATodo(c *gin.Context) {
 	todo := Todo{}
 	c.Bind(&todo)
 	todo.ID = bson.ObjectIdHex(id)
-
 	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
 	todoCRUDResponse(c, todo)
 }

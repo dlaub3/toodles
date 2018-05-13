@@ -13,18 +13,14 @@ const (
 func getAllTodos(c *gin.Context) {
 	var todos []Todo
 	Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todos}, "todos.html")
+	showAllToodles(c)
 }
 
 func getATodo(c *gin.Context) {
 	id := c.Param("todo_id")
 	todo := Todo{}
 	Mongo.C(collectionTodo).FindId(bson.ObjectIdHex(id)).One(&todo)
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todo}, "todo.html")
+	todoCRUDResponse(c, todo)
 }
 
 func createATodo(c *gin.Context) {
@@ -32,9 +28,7 @@ func createATodo(c *gin.Context) {
 	c.Bind(&todo)
 	todo.ID = bson.NewObjectId()
 	Mongo.C(collectionTodo).Insert(&todo)
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todo}, "todo.html")
+	todoCRUDResponse(c, todo)
 }
 
 func updateATodo(c *gin.Context) {
@@ -44,18 +38,14 @@ func updateATodo(c *gin.Context) {
 	todo.ID = bson.ObjectIdHex(id)
 
 	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todo}, "todo.html")
+	todoCRUDResponse(c, todo)
 }
 
 func deleteATodo(c *gin.Context) {
 	todo := Todo{}
 	id := c.Param("todo_id")
 	Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todo}, "todo.html")
+	todoCRUDResponse(c, todo)
 }
 
 /*
@@ -73,17 +63,28 @@ func updateOrDeleteTodo(c *gin.Context) {
 		c.Bind(&todo)
 		todo.ID = bson.ObjectIdHex(id)
 		Mongo.C(collectionTodo).UpdateId(bson.ObjectIdHex(id), &todo)
-		var todos []Todo
-		Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
-		render(c, gin.H{
-			"title":   "Todo",
-			"payload": todos}, "todos.html")
+		showAllToodles(c)
 	} else if method == "delete" {
 		Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
-		var todos []Todo
-		Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
+		showAllToodles(c)
+	}
+}
+
+func todoCRUDResponse(c *gin.Context, todo Todo) {
+	contentType := c.Request.Header.Get("Content-Type")
+	if contentType == "application/json" {
 		render(c, gin.H{
 			"title":   "Todo",
-			"payload": todos}, "todos.html")
+			"payload": todo}, "todo.html")
+	} else {
+		showAllToodles(c)
 	}
+}
+
+func showAllToodles(c *gin.Context) {
+	var todos []Todo
+	Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
+	render(c, gin.H{
+		"title":   "Todo",
+		"payload": todos}, "todos.html")
 }

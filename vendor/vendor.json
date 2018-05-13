@@ -9,6 +9,12 @@
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
+			"checksumSHA1": "n1KlKL/EMFA6figPDpgpw1XGAqw=",
+			"path": "github.com/appleboy/gin-jwt",
+			"revision": "a2cab93652d826ce56deb44084b25e7dabbf8b57",
+			"revisionTime": "2018-05-03T06:15:02Z"
+		},
+		{
 			"checksumSHA1": "QeKwBtN2df+j+4stw3bQJ6yO4EY=",
 			"path": "github.com/gin-contrib/sse",
 			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",
@@ -111,6 +117,12 @@
 			"revisionTime": "2018-05-02T15:14:59Z"
 		},
 		{
+			"checksumSHA1": "t37dLDJJHFiXijVk9izoM91M9Ho=",
+			"path": "gopkg.in/dgrijalva/jwt-go.v3",
+			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
+			"revisionTime": "2018-03-08T23:13:08Z"
+		},
+		{
 			"checksumSHA1": "P/k5ZGf0lEBgpKgkwy++F7K1PSg=",
 			"path": "gopkg.in/go-playground/validator.v8",
 			"revision": "5f1438d3fca68893a817e4a66806cea46a9e4ebf",
@@ -123,5 +135,5 @@
 			"revisionTime": "2018-03-28T19:50:20Z"
 		}
 	],
-	"rootPath": "github.com/dlaub3/todo"
+	"rootPath": "github.com/dlaub3/toodles"
 }

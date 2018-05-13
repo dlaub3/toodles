@@ -22,9 +22,64 @@ body {
 }
 
 
+/* Rotate Icon with CSS */
+
+.expand input {display: none};
+
 i {
-    font-size: 1.5em;
     background: inherit;
     outline: none;
     padding: 5px;
+}
+
+i::before {
+    font-size: 2em;
+    transition: all 500ms;
+}
+
+input:checked + i.icon-chevron-down::before {
+    display: block;
+    transform: rotate(180deg);
+}
+
+input+ i.icon-chevron-down::before {
+    display: block;
+    transform: rotate(0deg);
+}
+
+
+/* Style list item todos */
+
+.abs-right {
+    position: absolute;
+    right: 15px;
+    top: 0px;
+}
+
+#toodleEdit {
+    margin: 30px;
+}
+
+label.expand {
+    padding: 8px 0;
+}
+
+.icon-close:before {
+    color: #ff4848;
+    content: "\f00d";
+}
+
+.formDelete {
+    display: inline-block;
+}
+
+.formDelete button {
+    background: inherit;
+    outline: none;
+    border: none;
+    font-size: 2em;
+}
+
+.no-js-hide {
+    display: none;
 }

@@ -38,8 +38,11 @@ func createATodo(c *gin.Context) {
 }
 
 func updateATodo(c *gin.Context) {
+	id := c.Param("todo_id")
 	todo := Todo{}
 	c.Bind(&todo)
+	todo.ID = bson.ObjectIdHex(id)
+
 	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
 	render(c, gin.H{
 		"title":   "Todo",
@@ -55,20 +58,32 @@ func deleteATodo(c *gin.Context) {
 		"payload": todo}, "todo.html")
 }
 
+/*
+	Support update/delete when JS is disabled by
+	using a hidden form field.
+*/
+
 func updateOrDeleteTodo(c *gin.Context) {
 	todo := Todo{}
+
 	method := c.PostForm("method")
+	id := c.Param("todo_id")
+
 	if method == "put" {
 		c.Bind(&todo)
-		Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
+		todo.ID = bson.ObjectIdHex(id)
+		Mongo.C(collectionTodo).UpdateId(bson.ObjectIdHex(id), &todo)
+		var todos []Todo
+		Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
 		render(c, gin.H{
 			"title":   "Todo",
-			"payload": todo}, "todo.html")
+			"payload": todos}, "todos.html")
 	} else if method == "delete" {
-		id := c.Param("todo_id")
 		Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
+		var todos []Todo
+		Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
 		render(c, gin.H{
 			"title":   "Todo",
-			"payload": todo}, "todo.html")
+			"payload": todos}, "todos.html")
 	}
 }

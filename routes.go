@@ -18,4 +18,7 @@ func initializeRoutes() {
 	router.DELETE("/todos/:todo_id", deleteATodo)
 	// Get a todo by ID
 	router.GET("/todos/:todo_id", getATodo)
+
+	//Method specific to form submitalls
+	router.POST("/todos/:todo_id", updateOrDeleteTodo)
 }

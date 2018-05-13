@@ -20,3 +20,11 @@ body {
     font-weight: 400;
     margin: 0 10px;
 }
+
+
+i {
+    font-size: 1.5em;
+    background: inherit;
+    outline: none;
+    padding: 5px;
+}

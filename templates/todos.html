@@ -19,12 +19,29 @@
 </div>
 </div>
 <!-- <input name="method" type="hidden" value="delete"> -->
-
 <ul class="list-group">
   {{range .payload }}
-  <a href="/todos/{{.ID.Hex}}">
-    <li class="list-group-item">{{.Title}} <button class="btn btn-danger" onClick="deleteToodle(event, {{.ID.Hex}})">Delete</button></li>
-  </a>
+  <!-- <a href="/todos/{{.ID.Hex}}"> -->
+    <li class="list-group-item">{{.Title}} 
+      <button class="btn btn-danger" onClick="deleteToodle(event, {{.ID.Hex}})">Delete</button>
+      <i class="icon-chevron-down" data-toggle="collapse" data-target="#toodleEdit" aria-expanded="false" aria-controls="toodleEdit" onClick="() => e.preventDefault()">
+      </i>
+        <div class="collapse" id="toodleEdit">
+            <div class="card card-body">
+                <form action="/todos/{{.ID.Hex}}" method="post">
+                  <input type="hidden" name="method" value="put">
+                  <div class="form-group">
+                      <input name="title" type="text" class="form-control" id="title" placeholder="Find the keys">
+                  </div>
+                  <div class="form-group">
+                      <input name="note" type="text" class="form-control" id="note" placeholder="Because I lost them two weeks ago.">
+                  </div>
+                  <button type="submit" class="btn btn-dark">Add</button>
+              </form>
+            </div>
+        </div>
+    </li>
+  <!-- </a> -->
   {{end}}
 </ul>
 <script>

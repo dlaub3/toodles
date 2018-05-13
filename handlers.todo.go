@@ -54,3 +54,21 @@ func deleteATodo(c *gin.Context) {
 		"title":   "Todo",
 		"payload": todo}, "todo.html")
 }
+
+func updateOrDeleteTodo(c *gin.Context) {
+	todo := Todo{}
+	method := c.PostForm("method")
+	if method == "put" {
+		c.Bind(&todo)
+		Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
+		render(c, gin.H{
+			"title":   "Todo",
+			"payload": todo}, "todo.html")
+	} else if method == "delete" {
+		id := c.Param("todo_id")
+		Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
+		render(c, gin.H{
+			"title":   "Todo",
+			"payload": todo}, "todo.html")
+	}
+}

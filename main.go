@@ -6,25 +6,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var router *gin.Engine
+var r *gin.Engine
 
 func main() {
 
 	// Set the router as the default one provided by Gin
-	router = gin.Default()
+	r = gin.Default()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	// Process the templates at the start so that they don't have to be loaded
 	// from the disk again. This makes serving HTML pages very fast.
-	router.LoadHTMLGlob("templates/*")
+	r.LoadHTMLGlob("templates/*")
 
 	// Loads assets
-	router.Static("/assets", "./assets")
+	r.Static("/assets", "./assets")
 
 	// Initialize the routes
 	initializeRoutes()
 
 	// Start serving the application
-	router.Run()
+	r.Run()
 
 }
 

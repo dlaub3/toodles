@@ -19,6 +19,16 @@
 			"revisionTime": "2018-05-03T06:15:02Z"
 		},
 		{
+			"checksumSHA1": "ddtn7muwQPFC8tdbqPpOTRLtx7o=",
+			"path": "github.com/dlaub3/gin-jwt",
+			"revision": "0ec7da3796bb0d6f6c41ea679051385f7c486642",
+			"revisionTime": "2018-05-19T13:48:30Z"
+		},
+		{
+			"path": "github.com/dluab3/gin-jwt",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "icSNu0bzu8AsRDHr4iWT+6kWnI4=",
 			"path": "github.com/gin-contrib/sessions",
 			"revision": "15760a03818fe16125cd735433b57a7398335b13",

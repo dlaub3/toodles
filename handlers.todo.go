@@ -20,7 +20,9 @@ func getATodo(c *gin.Context) {
 	id := c.Param("todo_id")
 	todo := Todo{}
 	Mongo.C(collectionTodo).FindId(bson.ObjectIdHex(id)).One(&todo)
-	todoCRUDResponse(c, todo)
+	render(c, gin.H{
+		"title":   "Todo",
+		"payload": todo}, "todo.html")
 }
 
 func createATodo(c *gin.Context) {
@@ -28,7 +30,7 @@ func createATodo(c *gin.Context) {
 	c.Bind(&todo)
 	todo.ID = bson.NewObjectId()
 	Mongo.C(collectionTodo).Insert(&todo)
-	todoCRUDResponse(c, todo)
+	showAToodle(c, todo)
 }
 
 func updateATodo(c *gin.Context) {
@@ -37,14 +39,14 @@ func updateATodo(c *gin.Context) {
 	c.Bind(&todo)
 	todo.ID = bson.ObjectIdHex(id)
 	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
-	todoCRUDResponse(c, todo)
+	showAToodle(c, todo)
 }
 
 func deleteATodo(c *gin.Context) {
 	todo := Todo{}
 	id := c.Param("todo_id")
 	Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
-	todoCRUDResponse(c, todo)
+	showAToodle(c, todo)
 }
 
 /*
@@ -62,14 +64,16 @@ func updateOrDeleteTodo(c *gin.Context) {
 		c.Bind(&todo)
 		todo.ID = bson.ObjectIdHex(id)
 		Mongo.C(collectionTodo).UpdateId(bson.ObjectIdHex(id), &todo)
-		showAllToodles(c)
+		render(c, gin.H{
+			"title":   "Todo",
+			"payload": todo}, "todo.html")
 	} else if method == "delete" {
 		Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
 		showAllToodles(c)
 	}
 }
 
-func todoCRUDResponse(c *gin.Context, todo Todo) {
+func showAToodle(c *gin.Context, todo Todo) {
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {
 		render(c, gin.H{

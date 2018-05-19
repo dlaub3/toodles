@@ -15,12 +15,48 @@ $.fn.serializeObject = function()
    return o;
 };
 
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";";
+}
+
+function login(e) {
+    e.preventDefault();
+
+    let formData = $("#login").serializeObject();
+    fetch("/login", {
+      method: 'POST',
+      credentials: "same-origin",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify(formData),
+    })
+    .then(response => { 
+      if  (response.status == 200) {
+        return response.json();
+      }
+    })
+    .then(data => {
+        console.log(data);
+        // window.sessionStorage.token = data.token;
+        // It's not possible to use the httpOnly option
+        // when setting a cookie client side. 
+        // setCookie( "authorize_token", data.token, 1 );
+        window.location.replace("http://localhost:8080/todos");
+    });
+
+}
 
 function deleteToodle(e, id) {
     e.preventDefault();
 
     fetch("/todos/" + id, {
       method: 'DELETE',
+      credentials: "same-origin",
       headers: {
       'content-type': 'application/json',
       'Accept': 'application/json'
@@ -40,6 +76,7 @@ function addToodle(e) {
     let formData = $("#add-toodle").serializeObject();
     fetch("/todos", {
       method: 'POST',
+      credentials: "same-origin",
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -68,6 +105,7 @@ function updateToodle(e, id) {
 
     fetch("/todos/" + id, {
       method: 'PUT',
+      credentials: "same-origin",
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -80,10 +118,10 @@ function updateToodle(e, id) {
       }
     })
     .then(data => {
-        console.log(data.id);
-        $(t).closest( "li" ).children(".title").text(data.title);
-        $(t).closest( "li" ).children("input[name=title]").val(data.title)
-        $(t).closest( "li" ).children("input[name=note]").val(data.note)
+        console.log($(t).closest( "li" ));
+        $(t).closest( "li" ).find(".title").text(data.title);
+        $(t).closest( "li" ).find("input[name=title]").val(data.title)
+        $(t).closest( "li" ).find("input[name=note]").val(data.note)
     });
 }
 
@@ -92,16 +130,25 @@ function getTootleHTML(id, title, note) {
     let toodle = `
     <li class="list-group-item">
 
-        ${title} 
+        <a href="/todos/${id}" onClick="event.stoppropagation();">
+            <span class="title" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
+                ${title}  
+            </span>
+        </a>
         
         <div class="abs-right">
 
-            <form class="formDelete" action="/todos/${id}" method="post">
-            <input type="hidden" name="method" value="delete">
-            <button type="submit" class="icon-close" onClick="deleteToodle(event, ${id})"></button>
+            <form class="formComplete" action="/todos/${id}" method="post">
+            <input type="hidden" name="method" value="put">
+            <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
             </form>
 
-            <label class="expand" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit" onClick="() => e.preventDefault()">
+            <form class="formDelete" action="/todos/${id}" method="post">
+            <input type="hidden" name="method" value="delete">
+            <button type="submit" class="icon-close" onClick="deleteToodle(event, '${id}')"></button>
+            </form>
+
+            <label class="expand" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
                 <input type="checkbox">
                 <i class="icon-chevron-down"></i>
             </label>
@@ -117,8 +164,8 @@ function getTootleHTML(id, title, note) {
                     <div class="form-group">
                         <input name="note" type="text" value="${note}" class="form-control" id="note" placeholder="${note}">
                     </div>
-                    <button type="submit" class="btn btn-success">Update</button>
-                </form>
+                    <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
+                    </form>
                 </div>
             </div>
         </li>

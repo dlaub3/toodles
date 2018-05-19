@@ -14,7 +14,7 @@
             The auth middleware gin-jwt expects a JSON payload  
             so this has to use jQuery to handle the login. 
         -->
-        <form action="/login" method="POST">
+        <form id="login" action="/login" method="POST">
             <div class="form-group">
                 <label for="exampleInputEmail1">Username</label>
                 <input name="username" type="text" class="form-control" placeholder="Username">
@@ -24,7 +24,7 @@
                 <label for="exampleInputPassword1">Password</label>
                 <input name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-light">Submit</button>
+            <button type="submit" class="btn btn-light" onClick="login(event)">Submit</button>
         </form>
     </div>
 </div>

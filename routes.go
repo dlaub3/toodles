@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/appleboy/gin-jwt"
+	"github.com/dlaub3/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,10 +11,12 @@ func initializeRoutes() {
 
 	// the jwt middleware
 	authMiddleware := &jwt.GinJWTMiddleware{
-		Realm:      "test zone",
-		Key:        []byte("secret key 123"),
-		Timeout:    time.Hour,
-		MaxRefresh: time.Hour,
+		SendCookie:   true,
+		SecureCookie: false,
+		Realm:        "test zone",
+		Key:          []byte("secret key 123"),
+		Timeout:      time.Hour,
+		MaxRefresh:   time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
 			if userId == "admin" && password == "admin" {
 				return userId, true
@@ -42,9 +44,9 @@ func initializeRoutes() {
 		// - "header:<name>"
 		// - "query:<name>"
 		// - "cookie:<name>"
-		TokenLookup: "query:jwt",
+		// TokenLookup: "query:jwt",
 		// TokenLookup: "query:token",
-		//TokenLookup: "cookie:token",
+		TokenLookup: "cookie:token",
 
 		// TokenHeadName is a string in the header. Default value is "Bearer"
 		TokenHeadName: "Bearer",

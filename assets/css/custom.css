@@ -10,6 +10,13 @@ body {
     
 }
 
+.title {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #443f3f;
+}
+
 .card, li {
     color: #443f3f;
     margin-top: 15px;

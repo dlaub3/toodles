@@ -23,9 +23,11 @@
   {{range .payload }}
     <li class="list-group-item">
 
-      <span class="title">
-          {{.Title}} 
-      </span>
+        <a href="/todos/{{.ID.Hex}}" onClick="event.stoppropagation()">
+            <span class="title" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit">
+                {{.Title}} 
+            </span>
+        </a>
    
       
       <div class="abs-right">
@@ -40,13 +42,13 @@
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.ID.Hex}})"></button>
         </form>
 
-        <label class="expand no-js-hide" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit" onClick="() => e.preventDefault()">
+        <label class="expand no-js-hide" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit">
             <input type="checkbox">
             <i class="icon-chevron-down"></i>
         </label>
       </div>
 
-        <div class="collapse show" id="toodleEdit-{{.ID.Hex}}">
+        <div class="collapse" id="toodleEdit-{{.ID.Hex}}">
             <div class="card card-body">
                 <form action="/todos/{{.ID.Hex}}" method="post">
                   <input type="hidden" name="method" value="put">

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/dlaub3/gin-jwt"
+	"github.com/dlaub3/toodles/crypt"
 	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -29,11 +30,8 @@ func initializeRoutes() {
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
 			user := User{}
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
-			if user.Password == password {
-				return "", true
-			}
-
-			return userId, false
+			hash := user.Password
+			return userId, crypt.CheckPasswordHash(password, hash, 32)
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
 

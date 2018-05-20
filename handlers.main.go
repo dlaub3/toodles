@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/dlaub3/toodles/crypt"
 	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -26,11 +27,10 @@ func registerNewUser(c *gin.Context) {
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
 	c.Bind(&user)
-	Mongo.C(CollectionToodlers).Insert(&user)
 
-	Toodles := Toodles{}
-	Toodles.ID = user.ID
-	Mongo.C(CollectionToodles).Insert(&Toodles)
+	user.Password, _ = crypt.HashPassword(user.Password, 32)
+
+	Mongo.C(CollectionToodlers).Insert(&user)
 
 	render(c, gin.H{
 		"title": "Golang Todo Applicaiton"}, "login.html")

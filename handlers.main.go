@@ -21,11 +21,17 @@ func showSignupPage(c *gin.Context) {
 }
 
 func registerNewUser(c *gin.Context) {
+
 	user := User{}
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
 	c.Bind(&user)
 	Mongo.C(CollectionToodlers).Insert(&user)
+
+	Toodles := Toodles{}
+	Toodles.ID = user.ID
+	Mongo.C(CollectionToodles).Insert(&Toodles)
+
 	render(c, gin.H{
 		"title": "Golang Todo Applicaiton"}, "login.html")
 }

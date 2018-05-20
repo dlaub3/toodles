@@ -46,7 +46,7 @@ function login(e) {
         // It's not possible to use the httpOnly option
         // when setting a cookie client side. 
         // setCookie( "authorize_token", data.token, 1 );
-        window.location.replace("http://localhost:8080/todos");
+        window.location.replace("http://localhost:8080/toodles");
     });
 
 }
@@ -54,7 +54,7 @@ function login(e) {
 function deleteToodle(e, id) {
     e.preventDefault();
 
-    fetch("/todos/" + id, {
+    fetch("/toodles/" + id, {
       method: 'DELETE',
       credentials: "same-origin",
       headers: {
@@ -74,7 +74,7 @@ function addToodle(e) {
     e.preventDefault();
 
     let formData = $("#add-toodle").serializeObject();
-    fetch("/todos", {
+    fetch("/toodles", {
       method: 'POST',
       credentials: "same-origin",
       headers: {
@@ -91,7 +91,7 @@ function addToodle(e) {
     .then(data => {
         console.log(data);
         console.log(data.id);
-        let toodle = getTootleHTML(data.id, data.title, data.note);
+        let toodle = getTootleHTML(data.id, data.title, data.content);
         $("ul").append(toodle);
     });
 }
@@ -103,7 +103,7 @@ function updateToodle(e, id) {
     let t = e.target;
     let formData = $(t).closest( "form" ).serializeObject();
 
-    fetch("/todos/" + id, {
+    fetch("/toodles/" + id, {
       method: 'PUT',
       credentials: "same-origin",
       headers: {
@@ -121,16 +121,16 @@ function updateToodle(e, id) {
         console.log($(t).closest( "li" ));
         $(t).closest( "li" ).find(".title").text(data.title);
         $(t).closest( "li" ).find("input[name=title]").val(data.title)
-        $(t).closest( "li" ).find("input[name=note]").val(data.note)
+        $(t).closest( "li" ).find("input[name=content]").val(data.content)
     });
 }
 
 
-function getTootleHTML(id, title, note) {
+function getTootleHTML(id, title, content) {
     let toodle = `
     <li class="list-group-item">
 
-        <a href="/todos/${id}" onClick="event.stoppropagation();">
+        <a href="/toodles/${id}" onClick="event.stoppropagation();">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
                 ${title}  
             </span>
@@ -138,12 +138,12 @@ function getTootleHTML(id, title, note) {
         
         <div class="abs-right">
 
-            <form class="formComplete" action="/todos/${id}" method="post">
+            <form class="formComplete" action="/toodles/${id}" method="post">
             <input type="hidden" name="method" value="put">
             <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
             </form>
 
-            <form class="formDelete" action="/todos/${id}" method="post">
+            <form class="formDelete" action="/toodles/${id}" method="post">
             <input type="hidden" name="method" value="delete">
             <button type="submit" class="icon-close" onClick="deleteToodle(event, '${id}')"></button>
             </form>
@@ -156,13 +156,13 @@ function getTootleHTML(id, title, note) {
 
             <div class="collapse" id="toodleEdit-${id}">
                 <div class="card card-body">
-                    <form action="/todos/${id}" method="post">
+                    <form action="/toodles/${id}" method="post">
                     <input type="hidden" name="method" value="put">
                     <div class="form-group">
                         <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">
                     </div>
                     <div class="form-group">
-                        <input name="note" type="text" value="${note}" class="form-control" id="note" placeholder="${note}">
+                        <input name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}">
                     </div>
                     <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
                     </form>

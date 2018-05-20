@@ -9,8 +9,12 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-// Role for logged in users
-var Role string
+var (
+	// Role of the user
+	Role string
+	// UID of the user
+	UID string
+)
 
 func initializeRoutes() {
 
@@ -25,7 +29,6 @@ func initializeRoutes() {
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
 			user := User{}
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
-
 			if user.Password == password {
 				return "", true
 			}
@@ -33,6 +36,10 @@ func initializeRoutes() {
 			return userId, false
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
+
+			user := User{}
+			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
+			UID = user.UID
 
 			Role = "user"
 			if userId == "user" {
@@ -74,18 +81,18 @@ func initializeRoutes() {
 	auth := r.Group("/")
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		// Get all todos
-		auth.GET("/todos", getAllTodos)
+		// Get all toodles
+		auth.GET("/toodles", getAllToodles)
 		// Create a todo
-		auth.POST("/todos", createATodo)
+		auth.POST("/toodles", createAToodle)
 		// Update a todo
-		auth.PUT("/todos/:todo_id", updateATodo)
+		auth.PUT("/toodles/:toodle_id", updateAToodle)
 		// Delete a todo
-		auth.DELETE("/todos/:todo_id", deleteATodo)
+		auth.DELETE("/toodles/:toodle_id", deleteAToodle)
 		// Get a todo by ID
-		auth.GET("/todos/:todo_id", getATodo)
+		auth.GET("/toodles/:toodle_id", getAToodle)
 		//Method specific to form submitalls
-		auth.POST("/todos/:todo_id", updateOrDeleteTodo)
+		auth.POST("/toodles/:toodle_id", updateOrDeleteToodle)
 
 		auth.GET("refresh_token", authMiddleware.RefreshHandler)
 	}

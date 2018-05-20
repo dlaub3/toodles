@@ -8,22 +8,22 @@
 <div class="col-md-6 offset-md-3 text-left">
 <div class="card w-100">
     <div class="card-body">
-        <form class="formDelete float-right" action="/todos/{{.payload.ID.Hex}}" method="post">
+        <form class="formDelete float-right" action="/toodles/{{.payload.ID.Hex}}" method="post">
           <input type="hidden" name="method" value="delete">
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.payload.ID.Hex}})"></button>
         </form>
       <h5 class="card-title">{{.payload.Title}}</h5>
-      <p class="card-text">{{.payload.Note}}</p>
+      <p class="card-text">{{.payload.Content}}</p>
       <div class="card card-body">
-          <form action="/todos/{{.payload.ID.Hex}}" method="post">
+          <form action="/toodles/{{.payload.ID.Hex}}" method="post">
             <input type="hidden" name="method" value="put">
             <div class="form-group">
                 <input name="title" type="text" value="{{.payload.Title}}" class="form-control" id="title" placeholder="{{.payload.Title}}">
             </div>
             <div class="form-group">
-                <input name="note" type="text" value="{{.payload.Note}}" class="form-control" id="note" placeholder="{{.payload.Note}}">
+                <input name="content" type="text" value="{{.payload.Content}}" class="form-control" id="content" placeholder="{{.payload.Content}}">
             </div>
-            <a href="/todos" class="btn btn-dark">Back</a>
+            <a href="/toodles" class="btn btn-dark">Back</a>
             <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.payload.ID.Hex}} )">Update</button>
         </form>
       </div>

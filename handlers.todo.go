@@ -1,35 +1,40 @@
 package main
 
 import (
+	jwt "github.com/dlaub3/gin-jwt"
 	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 )
 
-const (
-	collectionTodo = "toodles"
-)
-
 func getAllTodos(c *gin.Context) {
-	var todos []Todo
-	Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
 	showAllToodles(c)
 }
 
 func getATodo(c *gin.Context) {
 	id := c.Param("todo_id")
-	todo := Todo{}
-	Mongo.C(collectionTodo).FindId(bson.ObjectIdHex(id)).One(&todo)
-	render(c, gin.H{
-		"title":   "Todo",
-		"payload": todo}, "todo.html")
+	userid := getUserIDFromJWT(c)
+	toodleuser := getToodleUserID(id)
+	if userid == toodleuser {
+		todo := Todo{}
+		todo.ID = bson.ObjectIdHex(id)
+		Mongo.C(CollectionToodles).FindId(bson.ObjectIdHex(id)).One(&todo)
+		render(c, gin.H{
+			"title":   "Todo",
+			"payload": todo}, "todo.html")
+	} else {
+		render(c, gin.H{
+			"title":   "403 Can't touch this.",
+			"payload": "403 Can't touch this."}, "error.html")
+	}
 }
 
 func createATodo(c *gin.Context) {
 	todo := Todo{}
 	c.Bind(&todo)
 	todo.ID = bson.NewObjectId()
-	Mongo.C(collectionTodo).Insert(&todo)
+	todo.UserID = getUserIDFromJWT(c)
+	Mongo.C(CollectionToodles).Insert(&todo)
 	showAToodle(c, todo)
 }
 
@@ -38,15 +43,31 @@ func updateATodo(c *gin.Context) {
 	todo := Todo{}
 	c.Bind(&todo)
 	todo.ID = bson.ObjectIdHex(id)
-	Mongo.C(collectionTodo).UpdateId(todo.ID, &todo)
-	showAToodle(c, todo)
+	userid := getUserIDFromJWT(c)
+	toodleuser := getToodleUserID(id)
+	if userid == toodleuser {
+		Mongo.C(CollectionToodles).UpdateId(todo.ID, &todo)
+		showAToodle(c, todo)
+	} else {
+		render(c, gin.H{
+			"title":   "403 Can't touch this.",
+			"payload": "403 Can't touch this."}, "error.html")
+	}
 }
 
 func deleteATodo(c *gin.Context) {
 	todo := Todo{}
 	id := c.Param("todo_id")
-	Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
-	showAToodle(c, todo)
+	userid := getUserIDFromJWT(c)
+	toodleuser := getToodleUserID(id)
+	if userid == toodleuser {
+		Mongo.C(CollectionToodles).RemoveId(bson.ObjectIdHex(id))
+		showAToodle(c, todo)
+	} else {
+		render(c, gin.H{
+			"title":   "403 Can't touch this.",
+			"payload": "403 Can't touch this."}, "error.html")
+	}
 }
 
 /*
@@ -60,16 +81,24 @@ func updateOrDeleteTodo(c *gin.Context) {
 	method := c.PostForm("method")
 	id := c.Param("todo_id")
 
-	if method == "put" {
-		c.Bind(&todo)
-		todo.ID = bson.ObjectIdHex(id)
-		Mongo.C(collectionTodo).UpdateId(bson.ObjectIdHex(id), &todo)
+	userid := getUserIDFromJWT(c)
+	toodleuser := getToodleUserID(id)
+	if userid == toodleuser {
+		if method == "put" {
+			c.Bind(&todo)
+			todo.ID = bson.ObjectIdHex(id)
+			Mongo.C(CollectionToodles).UpdateId(bson.ObjectIdHex(id), &todo)
+			render(c, gin.H{
+				"title":   "Todo",
+				"payload": todo}, "todo.html")
+		} else if method == "delete" {
+			Mongo.C(CollectionToodles).RemoveId(bson.ObjectIdHex(id))
+			showAllToodles(c)
+		}
+	} else {
 		render(c, gin.H{
-			"title":   "Todo",
-			"payload": todo}, "todo.html")
-	} else if method == "delete" {
-		Mongo.C(collectionTodo).RemoveId(bson.ObjectIdHex(id))
-		showAllToodles(c)
+			"title":   "403 Can't touch this.",
+			"payload": "403 Can't touch this."}, "error.html")
 	}
 }
 
@@ -86,8 +115,21 @@ func showAToodle(c *gin.Context, todo Todo) {
 
 func showAllToodles(c *gin.Context) {
 	var todos []Todo
-	Mongo.C(collectionTodo).Find(bson.M{}).All(&todos)
+	claims := jwt.ExtractClaims(c)
+	Mongo.C(CollectionToodles).Find(bson.M{"userid": claims["id"]}).All(&todos)
 	render(c, gin.H{
 		"title":   "Todo",
 		"payload": todos}, "todos.html")
+}
+
+func getUserIDFromJWT(c *gin.Context) string {
+	claims := jwt.ExtractClaims(c)
+	userid := claims["id"].(string)
+	return userid
+}
+
+func getToodleUserID(id string) string {
+	todo := Todo{}
+	Mongo.C(CollectionToodles).FindId(bson.ObjectIdHex(id)).One(&todo)
+	return todo.UserID
 }

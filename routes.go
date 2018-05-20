@@ -4,8 +4,13 @@ import (
 	"time"
 
 	"github.com/dlaub3/gin-jwt"
+	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
+	"github.com/globalsign/mgo/bson"
 )
+
+// Role for logged in users
+var Role string
 
 func initializeRoutes() {
 
@@ -18,24 +23,34 @@ func initializeRoutes() {
 		Timeout:      time.Hour,
 		MaxRefresh:   time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
-			if userId == "admin" && password == "admin" {
-				return userId, true
+			user := User{}
+			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
+
+			if user.Password == password {
+				return "", true
 			}
 
 			return userId, false
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
-			if userId == "admin" {
+
+			Role = "user"
+			if userId == "user" {
+				Role = "user"
+				return true
+			} else if userId == "admin" {
+				Role = "admin"
 				return true
 			}
 
-			return false
+			// @dev
+			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
+			render(c, gin.H{
+				"title":   "403 Can't touch this.",
+				"payload": "403 Can't touch this."}, "error.html")
+
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
@@ -47,6 +62,7 @@ func initializeRoutes() {
 		// TokenLookup: "query:jwt",
 		// TokenLookup: "query:token",
 		TokenLookup: "cookie:token",
+		// TokenLookup: "header:Authorization",
 
 		// TokenHeadName is a string in the header. Default value is "Bearer"
 		TokenHeadName: "Bearer",
@@ -81,5 +97,6 @@ func initializeRoutes() {
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Handle the login route
 	r.GET("/signup", showSignupPage)
+	r.POST("/signup", registerNewUser)
 
 }

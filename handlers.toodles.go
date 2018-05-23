@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"io/ioutil"
+
 	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -8,6 +11,11 @@ import (
 
 // Used as a flag to indicate the desited response is a single toodle
 var showSingle bool
+
+// CsrfToken binds with form submit csrf
+type CsrfToken struct {
+	CsrfToken string `form:"csrf" json:"csrf"`
+}
 
 func getAllToodles(c *gin.Context) {
 	showAllToodles(c)
@@ -35,10 +43,28 @@ func getAToodle(c *gin.Context) {
 func createAToodle(c *gin.Context) {
 	toodle := Toodle{}
 	toodle.ID = bson.NewObjectId()
+	csrfToken := CsrfToken{}
+
+	// save the request body
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	// restore the request body
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 	c.Bind(&toodle)
+	// restore request body
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	c.Bind(&csrfToken)
+
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
-	Mongo.C(CollectionToodles).Upsert(query, update)
+
+	if csrfToken.CsrfToken == CSRFTOKEN {
+		Mongo.C(CollectionToodles).Upsert(query, update)
+	} else {
+		render(c, gin.H{
+			"error": "Our servers are busy please stand bye.",
+		}, "error.html")
+
+	}
 	showAToodle(c, toodle)
 }
 
@@ -83,8 +109,9 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 
 	if contentType == "application/json" || showSingle == true {
 		render(c, gin.H{
-			"title":   "Toodle",
-			"payload": toodle}, "toodle.html")
+			"title":     "Toodle",
+			"csrfToken": CSRFTOKEN,
+			"payload":   toodle}, "toodle.html")
 	} else {
 		showAllToodles(c)
 	}
@@ -92,9 +119,9 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
-
 	Mongo.C(CollectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
 	render(c, gin.H{
-		"title":   "All your Toodles",
-		"payload": toodles.Toodles}, "toodles.html")
+		"title":     "All your Toodles",
+		"csrfToken": CSRFTOKEN,
+		"payload":   toodles.Toodles}, "toodles.html")
 }

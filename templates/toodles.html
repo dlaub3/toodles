@@ -8,6 +8,7 @@
 <div class="card w-100 mb-4">
     <div class="card-body">
 <form id="add-toodle" action="/toodles" method="post">
+    <input name="csrf" type="hidden" value="{{.csrfToken}}" >
     <div class="form-group">
         <input name="title" type="text" class="form-control" id="title" placeholder="Find the keys">
     </div>
@@ -33,11 +34,13 @@
       <div class="abs-right">
 
         <form class="formComplete" action="/toodles/{{.ID.Hex}}" method="post">
+            <input name="csrf" type="hidden" value="{{$.csrfToken}}" >
             <input type="hidden" name="method" value="put">
             <button type="submit" class="icon-check" onClick="complteToodle(event, {{.ID.Hex}})"></button>
         </form>
 
         <form class="formDelete" action="/toodles/{{.ID.Hex}}" method="post">
+          <input name="csrf" type="hidden" value="{{$.csrfToken}}" >
           <input type="hidden" name="method" value="delete">
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.ID.Hex}})"></button>
         </form>
@@ -51,7 +54,8 @@
         <div class="collapse" id="toodleEdit-{{.ID.Hex}}">
             <div class="card card-body">
                 <form action="/toodles/{{.ID.Hex}}" method="post">
-                  <input type="hidden" name="method" value="put">
+                  <input name="csrf" type="hidden" value="{{$.csrfToken}}" >
+                  <input type="hidden" name="method" value="put">   
                   <div class="form-group">
                       <input name="title" type="text" value="{{.Title}}" class="form-control" id="title" placeholder="{{.Title}}">
                   </div>

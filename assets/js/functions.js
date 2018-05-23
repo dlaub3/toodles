@@ -139,13 +139,15 @@ function getTootleHTML(id, title, content) {
         <div class="abs-right">
 
             <form class="formComplete" action="/toodles/${id}" method="post">
-            <input type="hidden" name="method" value="put">
-            <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
+                <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                <input type="hidden" name="method" value="put">
+                <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
             </form>
 
             <form class="formDelete" action="/toodles/${id}" method="post">
-            <input type="hidden" name="method" value="delete">
-            <button type="submit" class="icon-close" onClick="deleteToodle(event, '${id}')"></button>
+                <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                <input type="hidden" name="method" value="delete">
+                <button type="submit" class="icon-close" onClick="deleteToodle(event, '${id}')"></button>
             </form>
 
             <label class="expand" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
@@ -157,14 +159,15 @@ function getTootleHTML(id, title, content) {
             <div class="collapse" id="toodleEdit-${id}">
                 <div class="card card-body">
                     <form action="/toodles/${id}" method="post">
-                    <input type="hidden" name="method" value="put">
-                    <div class="form-group">
-                        <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">
-                    </div>
-                    <div class="form-group">
-                        <input name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}">
-                    </div>
-                    <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
+                        <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                        <input type="hidden" name="method" value="put">
+                        <div class="form-group">
+                            <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">
+                        </div>
+                        <div class="form-group">
+                            <input name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}">
+                        </div>
+                        <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
                     </form>
                 </div>
             </div>

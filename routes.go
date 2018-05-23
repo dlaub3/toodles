@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/dlaub3/gin-jwt"
@@ -15,6 +16,8 @@ var (
 	Role string
 	// UID of the user
 	UID string
+	// CSRF Token
+	CSRFTOKEN string
 )
 
 func initializeRoutes() {
@@ -38,6 +41,9 @@ func initializeRoutes() {
 			user := User{}
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			UID = user.UID
+			csrf(c)
+			csrfToken, _ := c.Request.Cookie("csrf")
+			CSRFTOKEN = csrfToken.Value
 
 			Role = "user"
 			if userId == "user" {
@@ -104,4 +110,27 @@ func initializeRoutes() {
 	r.GET("/signup", showSignupPage)
 	r.POST("/signup", registerNewUser)
 
+}
+
+func csrf(c *gin.Context) {
+
+	_, err := c.Request.Cookie("csrf")
+
+	if err != nil {
+		expire := time.Now().UTC().Add(time.Hour)
+		maxage := int(expire.Unix() - time.Now().Unix())
+
+		csrf, _ := crypt.GenerateRandomString(32)
+		cookie := http.Cookie{
+			Name:     "csrf",
+			Value:    csrf,
+			Path:     "/",
+			Expires:  expire,
+			MaxAge:   maxage,
+			HttpOnly: true,
+			Secure:   false, //@dev change when in prod mode
+			// No support for SameSite yet https://golang.org/src/net/http/cookie.go
+		}
+		http.SetCookie(c.Writer, &cookie)
+	}
 }

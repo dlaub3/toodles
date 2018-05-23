@@ -9,6 +9,7 @@
 <div class="card w-100">
     <div class="card-body">
         <form class="formDelete float-right" action="/toodles/{{.payload.ID.Hex}}" method="post">
+          <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
           <input type="hidden" name="method" value="delete">
           <button type="submit" class="icon-close" onClick="deleteToodle(event, {{.payload.ID.Hex}})"></button>
         </form>
@@ -16,6 +17,7 @@
       <p class="card-text">{{.payload.Content}}</p>
       <div class="card card-body">
           <form action="/toodles/{{.payload.ID.Hex}}" method="post">
+            <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
             <input type="hidden" name="method" value="put">
             <div class="form-group">
                 <input name="title" type="text" value="{{.payload.Title}}" class="form-control" id="title" placeholder="{{.payload.Title}}">

@@ -11,15 +11,6 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-var (
-	// Role of the user
-	Role string
-	// UID of the user
-	UID string
-	// CSRF Token
-	CSRFTOKEN string
-)
-
 func initializeRoutes() {
 
 	// the jwt middleware
@@ -27,7 +18,7 @@ func initializeRoutes() {
 		SendCookie:   true,
 		SecureCookie: false,
 		Realm:        "test zone",
-		Key:          []byte("secret key 123"),
+		Key:          []byte("secret key 12345678910"),
 		Timeout:      time.Hour,
 		MaxRefresh:   time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
@@ -40,19 +31,10 @@ func initializeRoutes() {
 
 			user := User{}
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
-			UID = user.UID
 			csrf(c)
 			csrfToken, _ := c.Request.Cookie("csrf")
-			CSRFTOKEN = csrfToken.Value
-
-			Role = "user"
-			if userId == "user" {
-				Role = "user"
-				return true
-			} else if userId == "admin" {
-				Role = "admin"
-				return true
-			}
+			c.Keys["csrftoken"] = csrfToken.Value
+			c.Keys["uid"] = user.UID
 
 			// @dev
 			return true

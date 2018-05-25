@@ -30,7 +30,7 @@ func main() {
 
 }
 
-// Render one of HTML, JSON or CSV based on the 'Accept' header of the request
+// Render one of HTML, JSON or XML based on the 'Accept' header of the request
 // If the header doesn't specify this, HTML is rendered, provided that
 // the template name is present
 func render(c *gin.Context, data gin.H, templateName string) {

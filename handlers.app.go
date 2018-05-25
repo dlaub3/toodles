@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/dlaub3/toodles/crypt"
-	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 )

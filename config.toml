@@ -1,2 +1,3 @@
 server = "localhost"
 database = "toodles"
+secretkey = "gohangasalamiimalasagnahog"

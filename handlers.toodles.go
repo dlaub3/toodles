@@ -2,9 +2,9 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 
-	. "github.com/dlaub3/toodles/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 )
@@ -39,35 +39,37 @@ func getAToodle(c *gin.Context) {
 }
 
 func createAToodle(c *gin.Context) {
+
+	validRequest := CSRFTokenIsValid(c)
+	if !validRequest {
+		render(c, gin.H{
+			"payload": "Our servers are busy please stand bye.",
+		}, "error.html")
+		return
+	}
+
 	toodle := Toodle{}
 	toodle.ID = bson.NewObjectId()
-	csrfToken := CsrfToken{}
 	UID := c.Keys["uid"].(string)
-	// save the request body
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	// restore the request body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 	c.Bind(&toodle)
-	// restore request body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	c.Bind(&csrfToken)
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
-	CSRFTOKEN := c.Keys["csrftoken"].(string)
 
-	if csrfToken.CsrfToken == CSRFTOKEN {
-		Mongo.C(CollectionToodles).Upsert(query, update)
-	} else {
-		render(c, gin.H{
-			"error": "Our servers are busy please stand bye.",
-		}, "error.html")
+	Mongo.C(CollectionToodles).Upsert(query, update)
 
-	}
 	showAToodle(c, toodle)
 }
 
 func updateAToodle(c *gin.Context) {
+	validRequest := CSRFTokenIsValid(c)
+	if !validRequest {
+		render(c, gin.H{
+			"payload": "Our servers are busy please stand bye.",
+		}, "error.html")
+		return
+	}
+
 	id := c.Param("toodle_id")
 	toodle := Toodle{}
 	c.Bind(&toodle)
@@ -80,6 +82,16 @@ func updateAToodle(c *gin.Context) {
 }
 
 func deleteAToodle(c *gin.Context) {
+
+	validRequest := CSRFTokenIsValid(c)
+	fmt.Println(validRequest)
+	if !validRequest {
+		render(c, gin.H{
+			"payload": "Our servers are busy please stand bye.",
+		}, "error.html")
+		return
+	}
+
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
@@ -124,4 +136,21 @@ func showAllToodles(c *gin.Context) {
 		"title":     "All your Toodles",
 		"csrfToken": c.Keys["csrftoken"],
 		"payload":   toodles.Toodles}, "toodles.html")
+}
+
+func CSRFTokenIsValid(c *gin.Context) bool {
+	csrfToken := CsrfToken{}
+	// save the request body
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	// restore the request body
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	// bind the token
+	c.Bind(&csrfToken)
+	// restore the request body
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	// return token validation
+	fmt.Println(c.Keys["csrftoken"].(string))
+	fmt.Println(csrfToken.CsrfToken)
+	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
 }

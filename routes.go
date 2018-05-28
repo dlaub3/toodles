@@ -66,6 +66,7 @@ func initializeRoutes() {
 			if err != nil {
 				csrfToken, err = csrf(c)
 			}
+
 			c.Keys["csrftoken"] = csrfToken.Value
 			c.Keys["uid"] = user.UID
 
@@ -142,7 +143,7 @@ func csrf(c *gin.Context) (*http.Cookie, error) {
 			Path:     "/",
 			Expires:  expire,
 			MaxAge:   maxage,
-			HttpOnly: true,
+			HttpOnly: false, // only access with the secure option
 			Secure:   false, //@dev change when in prod mode
 			// No support for SameSite yet https://golang.org/src/net/http/cookie.go
 		}

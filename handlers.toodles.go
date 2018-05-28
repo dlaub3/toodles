@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
@@ -40,11 +39,9 @@ func getAToodle(c *gin.Context) {
 
 func createAToodle(c *gin.Context) {
 
-	validRequest := CSRFTokenIsValid(c)
+	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		render(c, gin.H{
-			"payload": "Our servers are busy please stand bye.",
-		}, "error.html")
+		returnError(c)
 		return
 	}
 
@@ -55,18 +52,15 @@ func createAToodle(c *gin.Context) {
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
-
 	Mongo.C(CollectionToodles).Upsert(query, update)
 
 	showAToodle(c, toodle)
 }
 
 func updateAToodle(c *gin.Context) {
-	validRequest := CSRFTokenIsValid(c)
+	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		render(c, gin.H{
-			"payload": "Our servers are busy please stand bye.",
-		}, "error.html")
+		returnError(c)
 		return
 	}
 
@@ -83,12 +77,9 @@ func updateAToodle(c *gin.Context) {
 
 func deleteAToodle(c *gin.Context) {
 
-	validRequest := CSRFTokenIsValid(c)
-	fmt.Println(validRequest)
+	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		render(c, gin.H{
-			"payload": "Our servers are busy please stand bye.",
-		}, "error.html")
+		returnError(c)
 		return
 	}
 
@@ -138,7 +129,13 @@ func showAllToodles(c *gin.Context) {
 		"payload":   toodles.Toodles}, "toodles.html")
 }
 
-func CSRFTokenIsValid(c *gin.Context) bool {
+func returnError(c *gin.Context) {
+	render(c, gin.H{
+		"payload": "Our servers are busy please stand bye.",
+	}, "error.html")
+}
+
+func IsCSRFTokenValid(c *gin.Context) bool {
 	csrfToken := CsrfToken{}
 	// save the request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
@@ -148,9 +145,6 @@ func CSRFTokenIsValid(c *gin.Context) bool {
 	c.Bind(&csrfToken)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
 	// return token validation
-	fmt.Println(c.Keys["csrftoken"].(string))
-	fmt.Println(csrfToken.CsrfToken)
 	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
 }

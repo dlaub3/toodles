@@ -22,6 +22,22 @@ function setCookie(cname, cvalue, exdays) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";";
 }
 
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "empty";
+}
+
 function login(e) {
     e.preventDefault();
 
@@ -54,6 +70,9 @@ function login(e) {
 function deleteToodle(e, id) {
     e.preventDefault();
 
+    let t = e.target;
+    let formData = $(t).closest( "form" ).serializeObject();
+
     fetch("/toodles/" + id, {
       method: 'DELETE',
       credentials: "same-origin",
@@ -61,6 +80,7 @@ function deleteToodle(e, id) {
       'content-type': 'application/json',
       'Accept': 'application/json'
     },
+    body: JSON.stringify(formData),
     })
     .then(data => { 
       if  (data.status == 200) {
@@ -89,9 +109,9 @@ function addToodle(e) {
       }
     })
     .then(data => {
-        console.log(data);
-        console.log(data.id);
-        let toodle = getTootleHTML(data.id, data.title, data.content);
+        let cookie = getCookie("csrf");
+        console.log(cookie);
+        let toodle = getTootleHTML(data.id, data.title, data.content, cookie);
         $("ul").append(toodle);
     });
 }
@@ -126,7 +146,7 @@ function updateToodle(e, id) {
 }
 
 
-function getTootleHTML(id, title, content) {
+function getTootleHTML(id, title, content, cookie) {
     let toodle = `
     <li class="list-group-item">
 
@@ -139,13 +159,13 @@ function getTootleHTML(id, title, content) {
         <div class="abs-right">
 
             <form class="formComplete" action="/toodles/${id}" method="post">
-                <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                <input name="csrf" type="hidden" value="${cookie}" >
                 <input type="hidden" name="method" value="put">
                 <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
             </form>
 
             <form class="formDelete" action="/toodles/${id}" method="post">
-                <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                <input name="csrf" type="hidden" value="${cookie}" >
                 <input type="hidden" name="method" value="delete">
                 <button type="submit" class="icon-close" onClick="deleteToodle(event, '${id}')"></button>
             </form>
@@ -159,7 +179,7 @@ function getTootleHTML(id, title, content) {
             <div class="collapse" id="toodleEdit-${id}">
                 <div class="card card-body">
                     <form action="/toodles/${id}" method="post">
-                        <input name="csrf" type="hidden" value="{{.Csrf.Value}}" >
+                        <input name="csrf" type="hidden" value="${cookie}" >
                         <input type="hidden" name="method" value="put">
                         <div class="form-group">
                             <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">

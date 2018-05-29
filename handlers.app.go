@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/dlaub3/toodles/crypt"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -17,6 +20,22 @@ func showLoginPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Golang Todo Applicaiton"}, "login.html")
 }
+func logout(c *gin.Context) {
+	jwtcookie := http.Cookie{
+		Name:    "token",
+		Path:    "/",
+		Expires: time.Now().UTC(),
+	}
+	http.SetCookie(c.Writer, &jwtcookie)
+	csrfcookie := http.Cookie{
+		Name:    "csrf",
+		Path:    "/",
+		Expires: time.Now().UTC(),
+	}
+	http.SetCookie(c.Writer, &csrfcookie)
+	c.Redirect(302, "/")
+}
+
 func showSignupPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Golang Todo Applicaiton"}, "signup.html")

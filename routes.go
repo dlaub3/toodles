@@ -120,6 +120,7 @@ func initializeRoutes() {
 	r.GET("/", showHomePage)
 	// Handle the login route
 	r.GET("/login", showLoginPage)
+	r.GET("/logout", logout)
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Handle the login route
 	r.GET("/signup", showSignupPage)

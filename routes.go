@@ -47,6 +47,8 @@ func initializeRoutes() {
 	authMiddleware := &jwt.GinJWTMiddleware{
 		SendCookie:   true,
 		SecureCookie: false,
+		SendRedirect: true,
+		RedirectURI:  "/toodles",
 		Realm:        "test zone",
 		Key:          []byte(config.SecretKey),
 		Timeout:      time.Hour,

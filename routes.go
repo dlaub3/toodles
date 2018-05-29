@@ -76,10 +76,7 @@ func initializeRoutes() {
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			render(c, gin.H{
-				"title":   "403 Can't touch this.",
-				"payload": "403 Can't touch this."}, "error.html")
-
+			c.Redirect(302, "/login")
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.

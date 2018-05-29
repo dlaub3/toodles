@@ -35,6 +35,10 @@ func main() {
 // the template name is present
 func render(c *gin.Context, data gin.H, templateName string) {
 
+	if c.Keys["uid"] != nil {
+		data["loggedin"] = true
+	}
+
 	switch c.Request.Header.Get("Accept") {
 	case "application/json":
 		// Respond with JSON

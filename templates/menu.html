@@ -5,8 +5,13 @@
     <nav class="nav nav-masthead justify-content-between">
       <a class="nav-link active float-right" href="/">Home</a>
       <span>
-      <a href="/login">Login</a>
-      <a href="/signup">Sign-up</a>
+      {{ if .loggedin }}
+        <a href="/toodles">Toodles</a>
+        <a href="/logout">Logout</a>
+      {{ else }}
+        <a href="/login">Login</a>
+        <a href="/signup">Sign-up</a>
+      {{ end }}
       </span>
     </nav>
   </div>

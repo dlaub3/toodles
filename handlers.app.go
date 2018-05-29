@@ -8,7 +8,9 @@ import (
 
 func showHomePage(c *gin.Context) {
 	render(c, gin.H{
-		"title": "Golang Todo Applicaiton"}, "index.html")
+		"title":  "Golang Todo Applicaiton",
+		"option": "Golang Todo Applicaiton",
+	}, "index.html")
 }
 
 func showLoginPage(c *gin.Context) {

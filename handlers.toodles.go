@@ -101,6 +101,7 @@ func updateOrDeleteToodle(c *gin.Context) {
 	method := c.PostForm("method")
 
 	if method == "put" {
+		c.Keys["showsingle"] = true
 		updateAToodle(c)
 	} else if method == "delete" {
 		deleteAToodle(c)

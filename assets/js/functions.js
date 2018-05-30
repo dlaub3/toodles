@@ -57,12 +57,53 @@ function login(e) {
       }
     })
     .then(data => {
-        console.log(data);
+        console.log(data.error);
+        if (data.error) {
+            $("#emailHelp").text(data.error);
+        } else {
+            window.location.replace(location.origin + "/toodles");
+        }
         // window.sessionStorage.token = data.token;
         // It's not possible to use the httpOnly option
         // when setting a cookie client side. 
         // setCookie( "authorize_token", data.token, 1 );
-        window.location.replace("http://localhost:8080/toodles");
+        // 
+    });
+
+}
+
+function signup(e) {
+    e.preventDefault();
+
+    let formData = $("#signup").serializeObject();
+    fetch("/signup", {
+      method: 'POST',
+      credentials: "same-origin",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify(formData),
+    })
+    .then(response => { 
+      if  (response.status == 200) {
+        return response.json();
+      }
+    })
+    .then(data => {
+        console.log(data);
+        if (data.error) {
+            $("#emailHelp").text(data.error);
+        } else {
+            $(".lead").text("");
+            $(".card-body").addClass("text-center");
+            $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
+        }
+        // window.sessionStorage.token = data.token;
+        // It's not possible to use the httpOnly option
+        // when setting a cookie client side. 
+        // setCookie( "authorize_token", data.token, 1 );
+        // 
     });
 
 }

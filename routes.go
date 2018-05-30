@@ -56,9 +56,13 @@ func initializeRoutes() {
 		MaxRefresh:   time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
 			user := User{}
-			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
-			hash := user.Password
+			err := Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrf(c)
+			if err != nil {
+				c.Set("error", "Your username and password do not match.")
+				return userId, false
+			}
+			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
 				c.Set("error", "Your username and password do not match.")
 				c.Get("")
@@ -79,7 +83,6 @@ func initializeRoutes() {
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.Set("error", "Your username and password do not match.")
 			showLoginPage(c)
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

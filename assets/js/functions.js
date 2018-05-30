@@ -150,7 +150,7 @@ function getTootleHTML(id, title, content, cookie) {
     let toodle = `
     <li class="list-group-item">
 
-        <a href="/toodles/${id}" onClick="event.stoppropagation();">
+        <a href="/toodles/${id}" onClick="event.preventDefault();">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
                 ${title}  
             </span>

@@ -24,7 +24,7 @@
   {{range .payload }}
     <li class="list-group-item">
 
-        <a href="/toodles/{{.ID.Hex}}" onClick="event.stoppropagation()">
+        <a href="/toodles/{{.ID.Hex}}" onClick="event.preventDefault();">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit">
                 {{.Title}} 
             </span>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -58,25 +59,28 @@ func initializeRoutes() {
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			hash := user.Password
 			csrf(c)
-			return userId, crypt.CheckPasswordHash(password, hash, 32)
+			if crypt.CheckPasswordHash(password, hash, 32) != true {
+				c.Set("error", "Your username and password do not match.")
+				c.Get("")
+				return userId, false
+			}
+			return userId, true
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
-
 			user := User{}
 			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrfToken, err := c.Request.Cookie("csrf")
 			if err != nil {
 				csrfToken, err = csrf(c)
 			}
-
 			c.Keys["csrftoken"] = csrfToken.Value
 			c.Keys["uid"] = user.UID
-
-			// @dev
+			fmt.Println(c.Keys)
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.Redirect(302, "/login")
+			c.Set("error", "Your username and password do not match.")
+			showLoginPage(c)
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.

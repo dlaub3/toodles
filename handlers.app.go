@@ -11,15 +11,29 @@ import (
 
 func showHomePage(c *gin.Context) {
 	render(c, gin.H{
-		"title":  "Golang Todo Applicaiton",
-		"option": "Golang Todo Applicaiton",
+		"title":    "Toodles, stay organized. Get stuff done!",
+		"subtitle": "Login or create an account to get started.",
 	}, "index.html")
 }
 
 func showLoginPage(c *gin.Context) {
+	error, _ := c.Get("error")
 	render(c, gin.H{
-		"title": "Golang Todo Applicaiton"}, "login.html")
+		"error":    error,
+		"title":    "Login to access your toodles.",
+		"subtitle": "Signup to create an account.",
+	}, "login.html")
 }
+
+func showSignupPage(c *gin.Context) {
+	error, _ := c.Get("error")
+	render(c, gin.H{
+		"error":    error,
+		"title":    "Signup to start toodling today.",
+		"subtitle": "Complete the form below to create your account.",
+	}, "signup.html")
+}
+
 func logout(c *gin.Context) {
 	jwtcookie := http.Cookie{
 		Name:    "token",
@@ -36,11 +50,6 @@ func logout(c *gin.Context) {
 	c.Redirect(302, "/")
 }
 
-func showSignupPage(c *gin.Context) {
-	render(c, gin.H{
-		"title": "Golang Todo Applicaiton"}, "signup.html")
-}
-
 func registerNewUser(c *gin.Context) {
 
 	user := User{}
@@ -52,8 +61,8 @@ func registerNewUser(c *gin.Context) {
 	existingUser := User{}
 	Mongo.C(CollectionToodlers).Find(query).One(&existingUser)
 	if existingUser.Email == user.Email {
-		render(c, gin.H{
-			"payload": "A user by that name already exists."}, "signup.html")
+		c.Set("error", "Please choose a different username.")
+		showSignupPage(c)
 	} else {
 		user.Password, _ = crypt.HashPassword(user.Password, 32)
 		Mongo.C(CollectionToodlers).Insert(&user)

@@ -13,7 +13,7 @@
         <input name="title" type="text" class="form-control" id="title" placeholder="Find the keys">
     </div>
     <div class="form-group">
-        <input name="content" type="text" class="form-control" id="content" placeholder="Because I lost them two weeks ago.">
+        <textarea name="content" type="text" class="form-control" id="content" placeholder="Because I lost them two weeks ago." rows="3"></textarea>
     </div>
     <button type="submit" class="btn btn-dark" onClick="addToodle(event)">Add</button>
 </form>
@@ -24,7 +24,7 @@
   {{range .payload }}
     <li class="list-group-item">
 
-        <a href="/toodles/{{.ID.Hex}}" onClick="event.preventDefault();">
+        <a href="/toodles/{{.ID.Hex}}" onClick="checkInput(event);">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit">
                 {{.Title}} 
             </span>
@@ -60,7 +60,7 @@
                       <input name="title" type="text" value="{{.Title}}" class="form-control" id="title" placeholder="{{.Title}}">
                   </div>
                   <div class="form-group">
-                      <input name="content" type="text" value="{{.Content}}" class="form-control" id="content" placeholder="{{.Content}}">
+                        <textarea name="content" type="text" value="{{.Content}}" class="form-control" id="content" placeholder="{{.Content}}" rows="3"></textarea>
                   </div>
                   <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.ID.Hex}} )">Update</button>
                 </form>

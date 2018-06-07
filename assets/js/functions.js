@@ -95,7 +95,6 @@ function signup(e) {
         if (data.error) {
             $("#emailHelp").text(data.error);
         } else {
-            $(".lead").text("");
             $(".card-body").addClass("text-center");
             $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
         }
@@ -151,7 +150,7 @@ function addToodle(e) {
     })
     .then(data => {
         let cookie = getCookie("csrf");
-        console.log(cookie);
+        data = data.payload;
         let toodle = getTootleHTML(data.id, data.title, data.content, cookie);
         $("ul").append(toodle);
     });
@@ -179,7 +178,7 @@ function updateToodle(e, id) {
       }
     })
     .then(data => {
-        console.log($(t).closest( "li" ));
+        data = data.payload;
         $(t).closest( "li" ).find(".title").text(data.title);
         $(t).closest( "li" ).find("input[name=title]").val(data.title)
         $(t).closest( "li" ).find("input[name=content]").val(data.content)
@@ -191,7 +190,7 @@ function getTootleHTML(id, title, content, cookie) {
     let toodle = `
     <li class="list-group-item">
 
-        <a href="/toodles/${id}" onClick="event.preventDefault();">
+        <a href="/toodles/${id}" onClick="checkInput(event);">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
                 ${title}  
             </span>
@@ -226,7 +225,8 @@ function getTootleHTML(id, title, content, cookie) {
                             <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">
                         </div>
                         <div class="form-group">
-                            <input name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}">
+                            <textarea name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}" rows="3">
+                            </textarea>
                         </div>
                         <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
                     </form>
@@ -236,4 +236,11 @@ function getTootleHTML(id, title, content, cookie) {
     `;
 
     return toodle;
+}
+
+function checkInput(event) {
+    event.preventDefault();
+    var t = event.target;
+    var currentState = $(t).closest('li').find("input[type=checkbox]").prop("checked");
+    $(t).closest('li').find("input[type=checkbox]").prop("checked", !currentState);
 }

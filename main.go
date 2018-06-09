@@ -35,6 +35,9 @@ func main() {
 // the template name is present
 func render(c *gin.Context, data gin.H, templateName string) {
 
+	error, _ := c.Get("error")
+	data["error"] = error
+
 	if c.Keys["uid"] != nil {
 		data["loggedin"] = true
 	}

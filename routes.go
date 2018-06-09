@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -65,7 +64,6 @@ func initializeRoutes() {
 			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
 				c.Set("error", "Your username and password do not match.")
-				c.Get("")
 				return userId, false
 			}
 			return userId, true
@@ -77,12 +75,16 @@ func initializeRoutes() {
 			if err != nil {
 				csrfToken, err = csrf(c)
 			}
-			c.Keys["csrftoken"] = csrfToken.Value
-			c.Keys["uid"] = user.UID
-			fmt.Println(c.Keys)
+			c.Set("csrftoken", csrfToken.Value)
+			c.Set("uid", user.UID)
+			c.Set("error", "")
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
+			err, _ := c.Get("error")
+			if err == nil {
+				c.Set("error", "unauthorized")
+			}
 			showLoginPage(c)
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

@@ -57,7 +57,6 @@ function login(e) {
       }
     })
     .then(data => {
-        console.log(data.error);
         if (data.error) {
             $("#emailHelp").text(data.error);
         } else {
@@ -91,18 +90,12 @@ function signup(e) {
       }
     })
     .then(data => {
-        console.log(data);
         if (data.error) {
             $("#emailHelp").text(data.error);
         } else {
             $(".card-body").addClass("text-center");
             $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
         }
-        // window.sessionStorage.token = data.token;
-        // It's not possible to use the httpOnly option
-        // when setting a cookie client side. 
-        // setCookie( "authorize_token", data.token, 1 );
-        // 
     });
 
 }
@@ -122,11 +115,18 @@ function deleteToodle(e, id) {
     },
     body: JSON.stringify(formData),
     })
-    .then(data => { 
-      if  (data.status == 200) {
+    .then(response => { 
+        if  (response.status == 200) {
+            return response.json();
+        }
+    })
+    .then(data => {
+        if (data.error != "") {
+            handleError(data.error)
+            return false;
+        }
         let t = e.target;
         $(t).closest( "li" ).remove();
-      }
     });
 }
 
@@ -149,8 +149,13 @@ function addToodle(e) {
       }
     })
     .then(data => {
-        let cookie = getCookie("csrf");
+        console.log(data);
+        if (data.error != "") {
+            handleError(data.error)
+            return false;
+        }
         data = data.payload;
+        let cookie = getCookie("csrf");
         let toodle = getTootleHTML(data.id, data.title, data.content, cookie);
         $("ul").append(toodle);
     });
@@ -178,6 +183,10 @@ function updateToodle(e, id) {
       }
     })
     .then(data => {
+        if (data.error !== "") {
+            handleError(data.error)
+            return false;
+        }
         data = data.payload;
         $(t).closest( "li" ).find(".title").text(data.title);
         $(t).closest( "li" ).find("input[name=title]").val(data.title)
@@ -243,4 +252,10 @@ function checkInput(event) {
     var t = event.target;
     var currentState = $(t).closest('li').find("input[type=checkbox]").prop("checked");
     $(t).closest('li').find("input[type=checkbox]").prop("checked", !currentState);
+}
+
+function handleError(error) {
+    if (error === "unauthorized") {
+        window.location.replace(location.origin + "/login");
+    }
 }

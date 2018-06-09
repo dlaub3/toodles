@@ -17,18 +17,14 @@ func showHomePage(c *gin.Context) {
 }
 
 func showLoginPage(c *gin.Context) {
-	error, _ := c.Get("error")
 	render(c, gin.H{
-		"error":    error,
 		"title":    "Login to access your toodles.",
 		"subtitle": "Signup to create an account.",
 	}, "login.html")
 }
 
 func showSignupPage(c *gin.Context) {
-	error, _ := c.Get("error")
 	render(c, gin.H{
-		"error":    error,
 		"title":    "Signup to start toodling today.",
 		"subtitle": "Complete the form below to create your account.",
 	}, "signup.html")

@@ -4,15 +4,7 @@ Exploreing the Gin framework and Mgo
 
 ### Plans
 
-* Users collecion
-    * username
-    * password -- hash 
-    * role 
-    * uid
+* Sanitize Input
+* Prevent Empty form submits 
+* Style Mobile Layout
 
-* Toodles Collection 
-    * uid - users uid
-    * todos
-        - id
-        - title
-        - note

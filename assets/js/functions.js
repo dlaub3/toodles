@@ -231,7 +231,7 @@ function getTootleHTML(id, title, content, cookie) {
                         <input name="csrf" type="hidden" value="${cookie}" >
                         <input type="hidden" name="method" value="put">
                         <div class="form-group">
-                            <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}">
+                            <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}" required>
                         </div>
                         <div class="form-group">
                             <textarea name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}" rows="3">

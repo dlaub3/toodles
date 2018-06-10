@@ -10,6 +10,14 @@ body {
     
 }
 
+main {
+    margin-top: 50px;
+}
+
+h2 {
+    margin-bottom: 1.5vw;
+}
+
 .jumbotron {
     background: inherit;
 }
@@ -102,4 +110,16 @@ label.expand {
 .list-group-item a:hover {
     text-decoration: none;
     box-shadow: 0 2px 0 0 #443f3f;
+}
+
+.navbar-toggler {
+    cursor: pointer;
+    border: 2px solid white;
+    color: white;
+}
+
+.navbar-collapse {
+    margin-top: 21px;
+    filter: hue-rotate(145deg);
+    background: rgba(198, 198, 198, 0.21);
 }

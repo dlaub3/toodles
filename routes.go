@@ -111,16 +111,20 @@ func initializeRoutes() {
 	{
 		// Get all toodles
 		auth.GET("/toodles", getAllToodles)
-		// Create a todo
+		// Create a toodle
 		auth.POST("/toodles", createAToodle)
-		// Update a todo
-		auth.PUT("/toodles/:toodle_id", updateAToodle)
-		// Delete a todo
-		auth.DELETE("/toodles/:toodle_id", deleteAToodle)
-		// Get a todo by ID
+		// Get a toodle by ID
 		auth.GET("/toodles/:toodle_id", getAToodle)
 		//Method specifically for form submitalls and not JSON
 		auth.POST("/toodles/:toodle_id", updateOrDeleteToodle)
+		// Update a toodle
+		auth.PUT("/toodles/:toodle_id", updateAToodle)
+		// Delete a toodle
+		auth.DELETE("/toodles/:toodle_id", deleteAToodle)
+
+		// complete toodle
+		auth.POST("/toodles/:toodle_id/complete", completeToodle)
+		auth.PUT("/toodles/:toodle_id/complete", completeToodle)
 
 		auth.GET("refresh_token", authMiddleware.RefreshHandler)
 	}

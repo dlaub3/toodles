@@ -127,6 +127,7 @@ function deleteToodle(e, id) {
         }
         let t = e.target;
         $(t).closest( "li" ).remove();
+        decriment('.activeToodles', 1);
     });
 }
 
@@ -149,15 +150,16 @@ function addToodle(e) {
       }
     })
     .then(data => {
-        console.log(data);
         if (data.error != "") {
             handleError(data.error)
             return false;
         }
         data = data.payload;
+        console.table(data);
         let cookie = getCookie("csrf");
-        let toodle = getTootleHTML(data.id, data.title, data.content, cookie);
+        let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
         $("ul").append(toodle);
+        increment('.activeToodles', 1);
     });
 }
 
@@ -194,8 +196,41 @@ function updateToodle(e, id) {
     });
 }
 
+function completeToodle(e, id) {
+    e.preventDefault();
 
-function getTootleHTML(id, title, content, cookie) {
+    let t = e.target;
+    let formData = $(t).closest( "form" ).serializeObject();
+
+    fetch("/toodles/" + id + "/complete", {
+      method: 'PUT',
+      credentials: "same-origin",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify(formData),
+    })
+    .then(response => { 
+      if  (response.status == 200) {
+        return response.json();
+      }
+    })
+    .then(data => {
+        if (data.error !== "") {
+            handleError(data.error)
+            return false;
+        }
+        console.table(data.payload);
+        let toodle = $(t).closest( "li" );
+        toodle.css('background', 'green')
+        toodle.fadeOut();
+        decriment('.activeToodles', 1);
+        increment('.completedToodles', 1);
+    });
+}
+
+function getToodleHTML(id, title, content, cookie) {
     let toodle = `
     <li class="list-group-item">
 
@@ -210,7 +245,7 @@ function getTootleHTML(id, title, content, cookie) {
             <form class="formComplete" action="/toodles/${id}" method="post">
                 <input name="csrf" type="hidden" value="${cookie}" >
                 <input type="hidden" name="method" value="put">
-                <button type="submit" class="icon-check" onClick="complteToodle(event, '${id}')"></button>
+                <button type="submit" class="icon-check" onClick="completeToodle(event, '${id}')"></button>
             </form>
 
             <form class="formDelete" action="/toodles/${id}" method="post">
@@ -258,4 +293,16 @@ function handleError(error) {
     if (error === "unauthorized") {
         window.location.replace(location.origin + "/login");
     }
+}
+
+function decriment(target, n) {
+    let cur = $(target).find("span").text();
+    cur = parseInt(cur, 10);
+    $(target).find("span").text(cur - n);
+}
+
+function increment(target, n) {
+    let cur = $(target).find("span").text();
+    cur = parseInt(cur, 10);
+    $(target).find("span").text(cur + n);
 }

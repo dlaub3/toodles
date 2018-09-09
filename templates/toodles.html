@@ -4,7 +4,8 @@
 {{ template "header.html" .}}
 
 <h2>Your Active Toodles</h2>
-
+<div class="activeToodles">Active: <span>{{.active}}</span></div>
+<div class="completedToodles">Completed: <span>{{.completed}}</span></div>
 <div class="card w-100 mb-4">
     <div class="card-body">
 <form id="add-toodle" action="/toodles" method="post">
@@ -33,10 +34,10 @@
       
       <div class="abs-right">
 
-        <form class="formComplete" action="/toodles/{{.ID.Hex}}" method="post">
+        <form class="formComplete" action="/toodles/{{.ID.Hex}}/complete" method="post">
             <input name="csrf" type="hidden" value="{{$.csrfToken}}" >
             <input type="hidden" name="method" value="put">
-            <button type="submit" class="icon-check" onClick="complteToodle(event, {{.ID.Hex}})"></button>
+            <button type="submit" class="icon-check" onClick="completeToodle(event, {{.ID.Hex}})"></button>
         </form>
 
         <form class="formDelete" action="/toodles/{{.ID.Hex}}" method="post">

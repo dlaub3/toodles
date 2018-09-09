@@ -123,3 +123,17 @@ label.expand {
     filter: hue-rotate(145deg);
     background: rgba(198, 198, 198, 0.21);
 }
+
+.activeToodles, .completedToodles {
+    margin: 20px;
+    padding: 5px 20px;
+    display: inline-block
+}
+
+ .completedToodles {
+     background: #48ff48;
+ }
+
+ .activeToodles {
+     background: #ff4848;
+ }

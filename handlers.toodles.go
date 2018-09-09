@@ -75,6 +75,37 @@ func updateAToodle(c *gin.Context) {
 	showAToodle(c, toodle)
 }
 
+func completeToodle(c *gin.Context) {
+	validRequest := IsCSRFTokenValid(c)
+	if !validRequest {
+		returnError(c)
+		return
+	}
+
+	id := c.Param("toodle_id")
+	UID := c.Keys["uid"].(string)
+
+	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
+	update := bson.M{"$set": bson.M{"toodles.$.status": "complete"}}
+	Mongo.C(CollectionToodles).Update(query, update)
+
+	toodles := Toodles{}
+	toodle := Toodle{}
+	query = bson.M{"_id": bson.ObjectIdHex(UID)}
+	Mongo.C(CollectionToodles).Find(query).One(&toodles)
+
+	for _, item := range toodles.Toodles {
+		if item.ID == bson.ObjectIdHex(id) {
+			toodle.ID = item.ID
+			toodle.Status = item.Status
+			toodle.Title = item.Title
+			toodle.Content = item.Content
+		}
+	}
+
+	showAToodle(c, toodle)
+}
+
 func deleteAToodle(c *gin.Context) {
 
 	validRequest := IsCSRFTokenValid(c)
@@ -124,16 +155,37 @@ func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
 	Mongo.C(CollectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
+
+	activeToodles := Toodles{}
+	active := 0
+	completed := 0
+	for _, toodle := range toodles.Toodles {
+		if toodle.Status != "complete" {
+			active += 1
+			activeToodles.Toodles = append(activeToodles.Toodles, toodle)
+		} else {
+			completed += 1
+		}
+	}
+
 	render(c, gin.H{
+		"active":    active,
+		"completed": completed,
 		"title":     "All your Toodles",
 		"csrfToken": c.Keys["csrftoken"],
-		"payload":   toodles.Toodles}, "toodles.html")
+		"payload":   activeToodles.Toodles}, "toodles.html")
 }
 
 func returnError(c *gin.Context) {
 	render(c, gin.H{
 		"payload": "Our servers are busy please stand bye.",
 	}, "error.html")
+}
+
+func returnSuccess(c *gin.Context) {
+	render(c, gin.H{
+		"payload": "Success.",
+	}, "toodle.html")
 }
 
 func IsCSRFTokenValid(c *gin.Context) bool {

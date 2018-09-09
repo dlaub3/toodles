@@ -52,9 +52,11 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-      if  (response.status == 200) {
-        return response.json();
-      }
+        if  (response.status == 200) {
+            return response.json();
+        } else {
+            handleError(response.status, response.json())
+        }
     })
     .then(data => {
         if (data.error) {
@@ -85,9 +87,11 @@ function signup(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-      if  (response.status == 200) {
-        return response.json();
-      }
+        if  (response.status == 200) {
+            return response.json();
+        } else {
+            handleError(response.status, response.json())
+        }
     })
     .then(data => {
         if (data.error) {
@@ -118,6 +122,8 @@ function deleteToodle(e, id) {
     .then(response => { 
         if  (response.status == 200) {
             return response.json();
+        } else {
+            handleError(response.status, response.json())
         }
     })
     .then(data => {
@@ -145,15 +151,13 @@ function addToodle(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-      if  (response.status == 200) {
-        return response.json();
-      }
+        if  (response.status == 201) {
+            return response.json();
+        } else {
+            handleError(response.status, response.json())
+        }
     })
     .then(data => {
-        if (data.error != "") {
-            handleError(data.error)
-            return false;
-        }
         data = data.payload;
         console.table(data);
         let cookie = getCookie("csrf");
@@ -180,15 +184,13 @@ function updateToodle(e, id) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-      if  (response.status == 200) {
-        return response.json();
-      }
+        if  (response.status == 201) {
+            return response.json();
+        } else {
+            handleError(response.status, response.json())
+        }
     })
     .then(data => {
-        if (data.error !== "") {
-            handleError(data.error)
-            return false;
-        }
         data = data.payload;
         $(t).closest( "li" ).find(".title").text(data.title);
         $(t).closest( "li" ).find("input[name=title]").val(data.title)
@@ -212,15 +214,13 @@ function completeToodle(e, id) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-      if  (response.status == 200) {
-        return response.json();
-      }
+        if  (response.status == 201) {
+            return response.json();
+        } else {
+            handleError(response.status, response.json())
+        }
     })
     .then(data => {
-        if (data.error !== "") {
-            handleError(data.error)
-            return false;
-        }
         console.table(data.payload);
         let toodle = $(t).closest( "li" );
         toodle.css('background', 'green')
@@ -289,9 +289,12 @@ function checkInput(event) {
     $(t).closest('li').find("input[type=checkbox]").prop("checked", !currentState);
 }
 
-function handleError(error) {
-    if (error === "unauthorized") {
+function handleError(status, error) {
+    if (error === "unauthorized" || status == 401) {
         window.location.replace(location.origin + "/login");
+    } else {
+        alert("There was an error processing your request. Please try again.");
+        console.log(error)
     }
 }
 

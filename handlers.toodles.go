@@ -161,10 +161,10 @@ func showAllToodles(c *gin.Context) {
 	completed := 0
 	for _, toodle := range toodles.Toodles {
 		if toodle.Status != "complete" {
-			active += 1
+			active++
 			activeToodles.Toodles = append(activeToodles.Toodles, toodle)
 		} else {
-			completed += 1
+			completed++
 		}
 	}
 

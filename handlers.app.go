@@ -65,3 +65,14 @@ func registerNewUser(c *gin.Context) {
 		c.Redirect(302, "/login")
 	}
 }
+
+func handleUnauthorized(c *gin.Context) {
+	contentType := c.Request.Header.Get("Content-Type")
+	if contentType == "application/json" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
+	} else {
+		c.Redirect(302, "/login")
+	}
+}

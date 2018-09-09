@@ -81,11 +81,11 @@ func initializeRoutes() {
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			err, _ := c.Get("error")
-			if err == nil {
-				c.Set("error", "unauthorized")
+			if c.Request.URL.Path == "/login" {
+				showLoginPage(c)
+			} else {
+				handleUnauthorized(c)
 			}
-			showLoginPage(c)
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.

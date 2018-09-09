@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,7 @@ func main() {
 // If the header doesn't specify this, HTML is rendered, provided that
 // the template name is present
 func render(c *gin.Context, data gin.H, templateName string) {
-
+	fmt.Println()
 	error, _ := c.Get("error")
 	data["error"] = error
 
@@ -44,16 +45,28 @@ func render(c *gin.Context, data gin.H, templateName string) {
 		data["loggedin"] = true
 	}
 
+	var httpStatus int
+	switch c.Request.Method {
+	case "GET":
+		httpStatus = http.StatusOK
+	case "POST":
+		httpStatus = http.StatusCreated
+	case "PUT":
+		httpStatus = http.StatusCreated
+	case "DELETE":
+		httpStatus = http.StatusOK
+	}
+
 	switch c.Request.Header.Get("Accept") {
 	case "application/json":
 		// Respond with JSON
-		c.JSON(http.StatusOK, data)
+		c.JSON(httpStatus, data)
 	case "application/xml":
 		// Respond with XML
-		c.XML(http.StatusOK, data)
+		c.XML(httpStatus, data)
 	default:
 		// Respond with HTML
-		c.HTML(http.StatusOK, templateName, data)
+		c.HTML(httpStatus, templateName, data)
 	}
 
 }

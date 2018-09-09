@@ -137,3 +137,7 @@ label.expand {
  .activeToodles {
      background: #ff4848;
  }
+
+ footer {
+     margin-top: 300px;
+ }

@@ -52,7 +52,7 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([302,401].includes(response.status) !== -1) {
+        if  ([302,401].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status, response.json())
@@ -75,6 +75,14 @@ function login(e) {
 function signup(e) {
     e.preventDefault();
 
+    if(!validateEmail('#email')) {
+        return $("#emailHelp").text("Please enter a valid email.");
+    }
+
+    if(!validatePassword('#password')) {
+        return $("#emailHelp").text("Your password should be at least 4 characters.");
+    }
+
     let formData = $("#signup").serializeObject();
     fetch("/signup", {
       method: 'POST',
@@ -86,7 +94,7 @@ function signup(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([302,400].includes(response.status) !== -1) {
+        if  ([302,400].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status, response.json())
@@ -307,4 +315,14 @@ function increment(target, n) {
     let cur = $(target).find("span").text();
     cur = parseInt(cur, 10);
     $(target).find("span").text(cur + n);
+}
+
+function validateEmail(target) {
+    let email = $(target).val();
+    return email.includes('@');
+  }
+
+function validatePassword(target) {
+    let password = $(target).val();
+    return password.length > 3;
 }

@@ -52,7 +52,7 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 200) {
+        if  ([302,401].includes(response.status) !== -1) {
             return response.json();
         } else {
             handleError(response.status, response.json())
@@ -68,7 +68,6 @@ function login(e) {
         // It's not possible to use the httpOnly option
         // when setting a cookie client side. 
         // setCookie( "authorize_token", data.token, 1 );
-        // 
     });
 
 }
@@ -87,7 +86,7 @@ function signup(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 200) {
+        if  ([302,400].includes(response.status) !== -1) {
             return response.json();
         } else {
             handleError(response.status, response.json())

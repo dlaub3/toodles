@@ -56,22 +56,31 @@ func registerNewUser(c *gin.Context) {
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
 	Mongo.C(CollectionToodlers).Find(query).One(&existingUser)
+
 	if existingUser.Email == user.Email {
+		c.Set("httpStatus", 400)
 		c.Set("error", "Please choose a different username.")
 		showSignupPage(c)
+		return
+	}
+
+	user.Password, _ = crypt.HashPassword(user.Password, 32)
+	Mongo.C(CollectionToodlers).Insert(&user)
+
+	contentType := c.Request.Header.Get("Content-Type")
+	if contentType == "application/json" {
+		c.JSON(http.StatusCreated, gin.H{})
 	} else {
-		user.Password, _ = crypt.HashPassword(user.Password, 32)
-		Mongo.C(CollectionToodlers).Insert(&user)
 		c.Redirect(302, "/login")
 	}
+
 }
 
 func handleUnauthorized(c *gin.Context) {
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Unauthorized",
-		})
+		c.Set("error", "unauthorized")
+		c.JSON(http.StatusUnauthorized, gin.H{})
 	} else {
 		c.Redirect(302, "/login")
 	}

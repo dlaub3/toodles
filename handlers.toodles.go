@@ -194,10 +194,9 @@ func IsCSRFTokenValid(c *gin.Context) bool {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	// bind the token
 	c.Bind(&csrfToken)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	// return token validation
+
 	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
 }

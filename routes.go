@@ -58,11 +58,13 @@ func initializeRoutes() {
 			err := Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrf(c)
 			if err != nil {
+				c.Set("httpStatus", 401)
 				c.Set("error", "Your username and password do not match.")
 				return userId, false
 			}
 			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
+				c.Set("httpStatus", 401)
 				c.Set("error", "Your username and password do not match.")
 				return userId, false
 			}
@@ -109,35 +111,26 @@ func initializeRoutes() {
 	auth := r.Group("/")
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		// Get all toodles
 		auth.GET("/toodles", getAllToodles)
-		// Create a toodle
 		auth.POST("/toodles", createAToodle)
-		// Get a toodle by ID
 		auth.GET("/toodles/:toodle_id", getAToodle)
-		//Method specifically for form submitalls and not JSON
-		auth.POST("/toodles/:toodle_id", updateOrDeleteToodle)
-		// Update a toodle
 		auth.PUT("/toodles/:toodle_id", updateAToodle)
-		// Delete a toodle
 		auth.DELETE("/toodles/:toodle_id", deleteAToodle)
-
-		// complete toodle
-		auth.POST("/toodles/:toodle_id/complete", completeToodle)
 		auth.PUT("/toodles/:toodle_id/complete", completeToodle)
+
+		//Routes specifically for form submitalls and not AJAX
+		auth.POST("/toodles/:toodle_id", updateOrDeleteToodle)
+		auth.POST("/toodles/:toodle_id/complete", completeToodle)
 
 		auth.GET("refresh_token", authMiddleware.RefreshHandler)
 	}
 
-	// Handle the index route
 	r.GET("/", showHomePage)
-	// Handle the login route
-	r.GET("/login", showLoginPage)
-	r.GET("/logout", logout)
-	r.POST("/login", authMiddleware.LoginHandler)
-	// Handle the login route
 	r.GET("/signup", showSignupPage)
 	r.POST("/signup", registerNewUser)
+	r.GET("/login", showLoginPage)
+	r.POST("/login", authMiddleware.LoginHandler)
+	r.GET("/logout", logout)
 
 }
 

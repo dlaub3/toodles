@@ -1,17 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"io/ioutil"
-
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 )
-
-// CsrfToken binds with form submit csrf
-type CsrfToken struct {
-	CsrfToken string `form:"csrf" json:"csrf"`
-}
 
 func getAllToodles(c *gin.Context) {
 	showAllToodles(c)
@@ -41,7 +33,7 @@ func createAToodle(c *gin.Context) {
 
 	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		returnError(c)
+		ShowErrorPage(c)
 		return
 	}
 
@@ -60,7 +52,7 @@ func createAToodle(c *gin.Context) {
 func updateAToodle(c *gin.Context) {
 	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		returnError(c)
+		ShowErrorPage(c)
 		return
 	}
 
@@ -78,7 +70,7 @@ func updateAToodle(c *gin.Context) {
 func completeToodle(c *gin.Context) {
 	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		returnError(c)
+		ShowErrorPage(c)
 		return
 	}
 
@@ -110,7 +102,7 @@ func deleteAToodle(c *gin.Context) {
 
 	validRequest := IsCSRFTokenValid(c)
 	if !validRequest {
-		returnError(c)
+		ShowErrorPage(c)
 		return
 	}
 
@@ -173,30 +165,6 @@ func showAllToodles(c *gin.Context) {
 		"completed": completed,
 		"title":     "All your Toodles",
 		"csrfToken": c.Keys["csrftoken"],
-		"payload":   activeToodles.Toodles}, "toodles.html")
-}
-
-func returnError(c *gin.Context) {
-	render(c, gin.H{
-		"payload": "Our servers are busy please stand bye.",
-	}, "error.html")
-}
-
-func returnSuccess(c *gin.Context) {
-	render(c, gin.H{
-		"payload": "Success.",
-	}, "toodle.html")
-}
-
-func IsCSRFTokenValid(c *gin.Context) bool {
-	csrfToken := CsrfToken{}
-	// save the request body
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	// restore the request body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	c.Bind(&csrfToken)
-	// restore the request body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
+		"payload":   activeToodles.Toodles,
+	}, "toodles.html")
 }

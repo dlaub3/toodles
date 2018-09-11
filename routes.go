@@ -86,7 +86,7 @@ func initializeRoutes() {
 			if c.Request.URL.Path == "/login" {
 				showLoginPage(c)
 			} else {
-				handleUnauthorized(c)
+				HandleUnauthorized(c)
 			}
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

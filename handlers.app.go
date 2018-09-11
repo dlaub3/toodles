@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/dlaub3/toodles/crypt"
 	"github.com/gin-gonic/gin"
@@ -28,22 +27,6 @@ func showSignupPage(c *gin.Context) {
 		"title":    "Signup to start toodling today.",
 		"subtitle": "Complete the form below to create your account.",
 	}, "signup.html")
-}
-
-func logout(c *gin.Context) {
-	jwtcookie := http.Cookie{
-		Name:    "token",
-		Path:    "/",
-		Expires: time.Now().UTC(),
-	}
-	http.SetCookie(c.Writer, &jwtcookie)
-	csrfcookie := http.Cookie{
-		Name:    "csrf",
-		Path:    "/",
-		Expires: time.Now().UTC(),
-	}
-	http.SetCookie(c.Writer, &csrfcookie)
-	c.Redirect(302, "/")
 }
 
 func registerNewUser(c *gin.Context) {
@@ -76,12 +59,7 @@ func registerNewUser(c *gin.Context) {
 
 }
 
-func handleUnauthorized(c *gin.Context) {
-	contentType := c.Request.Header.Get("Content-Type")
-	if contentType == "application/json" {
-		c.Set("error", "unauthorized")
-		c.JSON(http.StatusUnauthorized, gin.H{})
-	} else {
-		c.Redirect(302, "/login")
-	}
+func logout(c *gin.Context) {
+	InvalidateCookies(c)
+	c.Redirect(302, "/")
 }

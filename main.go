@@ -12,6 +12,8 @@ func main() {
 
 	// Set the router as the default one provided by Gin
 	r = gin.Default()
+
+	// Add middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
@@ -34,33 +36,31 @@ func main() {
 // If the header doesn't specify this, HTML is rendered, provided that
 // the template name is present
 func render(c *gin.Context, data gin.H, templateName string) {
+
 	error, _ := c.Get("error")
 	data["error"] = error
 
-	var httpStatus int
-	status, _ := c.Get("httpStatus")
-
-	if status != nil {
-		httpStatus = status.(int)
-	}
-
 	cookie, _ := c.Request.Cookie("token")
-
 	if cookie != nil {
 		data["loggedin"] = true
 	}
 
-	if httpStatus < 1 {
-		switch c.Request.Method {
-		case "GET":
-			httpStatus = http.StatusOK
-		case "POST":
-			httpStatus = http.StatusCreated
-		case "PUT":
-			httpStatus = http.StatusCreated
-		case "DELETE":
-			httpStatus = http.StatusOK
-		}
+	var httpStatus int
+	switch c.Request.Method {
+	case "GET":
+		httpStatus = http.StatusOK
+	case "POST":
+		httpStatus = http.StatusCreated
+	case "PUT":
+		httpStatus = http.StatusCreated
+	case "DELETE":
+		httpStatus = http.StatusOK
+	}
+
+	// in case of error get reset the default status
+	status, _ := c.Get("httpStatus")
+	if status != nil {
+		httpStatus = status.(int)
 	}
 
 	switch c.Request.Header.Get("Accept") {
@@ -69,7 +69,6 @@ func render(c *gin.Context, data gin.H, templateName string) {
 	case "application/xml":
 		c.XML(httpStatus, data)
 	default:
-		// Respond with HTML
 		c.HTML(httpStatus, templateName, data)
 	}
 

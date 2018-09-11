@@ -10,13 +10,13 @@ import (
 )
 
 // CsrfToken binds with form submit csrf
-type CsrfToken struct {
+type csrfToken struct {
 	CsrfToken string `form:"csrf" json:"csrf"`
 }
 
 // IsCSRFTokenValid checks the request for a valid CSRF token
-func IsCSRFTokenValid(c *gin.Context) bool {
-	csrfToken := CsrfToken{}
+func isCSRFTokenValid(c *gin.Context) bool {
+	csrfToken := csrfToken{}
 	// save the request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	// restore the request body
@@ -29,13 +29,13 @@ func IsCSRFTokenValid(c *gin.Context) bool {
 }
 
 // InvalidateCookies for JWT and CSRF
-func InvalidateCookies(c *gin.Context) {
-	InvalidateCSRF(c)
-	InvalidateJWT(c)
+func invalidateCookies(c *gin.Context) {
+	invalidateCSRF(c)
+	invalidateJWT(c)
 }
 
 // InvalidateCSRF Cookie
-func InvalidateCSRF(c *gin.Context) {
+func invalidateCSRF(c *gin.Context) {
 	csrfcookie := http.Cookie{
 		Name:    "csrf",
 		Path:    "/",
@@ -45,7 +45,7 @@ func InvalidateCSRF(c *gin.Context) {
 }
 
 // InvalidateJWT Cooke
-func InvalidateJWT(c *gin.Context) {
+func invalidateJWT(c *gin.Context) {
 	jwtcookie := http.Cookie{
 		Name:    "token",
 		Path:    "/",
@@ -55,14 +55,14 @@ func InvalidateJWT(c *gin.Context) {
 }
 
 // ShowErrorPage for bad requests
-func ShowErrorPage(c *gin.Context) {
+func showErrorPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Our servers are busy please stand bye. 😞",
 	}, "error.html")
 }
 
 // HandleUnauthorized request repsonses
-func HandleUnauthorized(c *gin.Context) {
+func handleUnauthorized(c *gin.Context) {
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {
 		c.Set("error", "unauthorized")

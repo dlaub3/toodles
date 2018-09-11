@@ -32,9 +32,7 @@ func main() {
 
 }
 
-// Render one of HTML, JSON or XML based on the 'Accept' header of the request
-// If the header doesn't specify this, HTML is rendered, provided that
-// the template name is present
+// send the http response
 func render(c *gin.Context, data gin.H, templateName string) {
 
 	error, _ := c.Get("error")
@@ -57,7 +55,7 @@ func render(c *gin.Context, data gin.H, templateName string) {
 		httpStatus = http.StatusOK
 	}
 
-	// in case of error get reset the default status
+	// get alternate httpStatus
 	status, _ := c.Get("httpStatus")
 	if status != nil {
 		httpStatus = status.(int)

@@ -31,9 +31,9 @@ func getAToodle(c *gin.Context) {
 
 func createAToodle(c *gin.Context) {
 
-	validRequest := IsCSRFTokenValid(c)
+	validRequest := isCSRFTokenValid(c)
 	if !validRequest {
-		ShowErrorPage(c)
+		showErrorPage(c)
 		return
 	}
 
@@ -50,9 +50,9 @@ func createAToodle(c *gin.Context) {
 }
 
 func updateAToodle(c *gin.Context) {
-	validRequest := IsCSRFTokenValid(c)
+	validRequest := isCSRFTokenValid(c)
 	if !validRequest {
-		ShowErrorPage(c)
+		showErrorPage(c)
 		return
 	}
 
@@ -68,9 +68,9 @@ func updateAToodle(c *gin.Context) {
 }
 
 func completeToodle(c *gin.Context) {
-	validRequest := IsCSRFTokenValid(c)
+	validRequest := isCSRFTokenValid(c)
 	if !validRequest {
-		ShowErrorPage(c)
+		showErrorPage(c)
 		return
 	}
 
@@ -100,9 +100,9 @@ func completeToodle(c *gin.Context) {
 
 func deleteAToodle(c *gin.Context) {
 
-	validRequest := IsCSRFTokenValid(c)
+	validRequest := isCSRFTokenValid(c)
 	if !validRequest {
-		ShowErrorPage(c)
+		showErrorPage(c)
 		return
 	}
 

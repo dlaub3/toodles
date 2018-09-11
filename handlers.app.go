@@ -60,6 +60,6 @@ func registerNewUser(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	InvalidateCookies(c)
+	invalidateCookies(c)
 	c.Redirect(302, "/")
 }

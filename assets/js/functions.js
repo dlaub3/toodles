@@ -41,6 +41,10 @@ function getCookie(cname) {
 function login(e) {
     e.preventDefault();
 
+    if(!validateLoginForm()) {
+        return;
+    }
+
     let formData = $("#login").serializeObject();
     fetch("/login", {
       method: 'POST',
@@ -52,7 +56,7 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([302,401].includes(response.status)) {
+        if  ([200,401].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status, response.json())
@@ -75,12 +79,8 @@ function login(e) {
 function signup(e) {
     e.preventDefault();
 
-    if(!validateEmail('#email')) {
-        return $("#emailHelp").text("Please enter a valid email.");
-    }
-
-    if(!validatePassword('#password')) {
-        return $("#emailHelp").text("Your password should be at least 4 characters.");
+    if(!validateSignupForm()) {
+        return;
     }
 
     let formData = $("#signup").serializeObject();
@@ -94,7 +94,7 @@ function signup(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([302,400].includes(response.status)) {
+        if  ([201,302,400].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status, response.json())
@@ -325,4 +325,26 @@ function validateEmail(target) {
 function validatePassword(target) {
     let password = $(target).val();
     return password.length > 3;
+}
+
+function validateLoginForm() {
+
+    let validEmail = validateEmail('#email');
+    let validPassword = validatePassword('#password');
+
+    validEmail ? $("#emailHelp").text("") : $("#emailHelp").text("Please enter a valid email.");
+    validPassword ? $("#passwordHelp").text("") : $("#passwordHelp").text("Don't forget your password.");
+
+    return validEmail && validPassword;
+}
+
+function validateSignupForm() {
+
+    let validEmail = validateEmail('#email');
+    let validPassword = validatePassword('#password');
+
+    validEmail ? $("#emailHelp").text("") : $("#emailHelp").text("Please enter a valid email.");
+    validPassword ? $("#passwordHelp").text("") : $("#passwordHelp").text("Your password should be at least 4 characters.");
+
+    return validEmail && validPassword;
 }

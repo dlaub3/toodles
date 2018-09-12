@@ -1,9 +1,25 @@
 package main
 
+import (
+	"github.com/gin-gonic/gin"
+)
+
 func initializeRoutes() {
 
-	auth := r.Group("/")
 	authMiddleware := jwtMiddleware()
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
+
+	r.GET("/", showHomePage)
+	r.GET("/signup", showSignupPage)
+	r.POST("/signup", registerNewUser)
+	r.GET("/login", showLoginPage)
+	r.POST("/login", authMiddleware.LoginHandler)
+	r.GET("/logout", logout)
+
+	auth := r.Group("/")
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
 		auth.GET("/toodles", getAllToodles)
@@ -19,12 +35,5 @@ func initializeRoutes() {
 
 		auth.GET("refresh_token", authMiddleware.RefreshHandler)
 	}
-
-	r.GET("/", showHomePage)
-	r.GET("/signup", showSignupPage)
-	r.POST("/signup", registerNewUser)
-	r.GET("/login", showLoginPage)
-	r.POST("/login", authMiddleware.LoginHandler)
-	r.GET("/logout", logout)
 
 }

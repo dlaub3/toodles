@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/dlaub3/toodles/crypt"
@@ -34,11 +35,15 @@ func registerNewUser(c *gin.Context) {
 	user := User{}
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
-	c.Bind(&user)
+	if err := c.Bind(&user); err != nil {
+		log.Panic(err)
+	}
 
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
-	mongo.C(collectionToodlers).Find(query).One(&existingUser)
+	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err != nil {
+		log.Panic(err)
+	}
 
 	if existingUser.Email == user.Email {
 		c.Set("httpStatus", 400)
@@ -48,7 +53,9 @@ func registerNewUser(c *gin.Context) {
 	}
 
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
-	mongo.C(collectionToodlers).Insert(&user)
+	if err := mongo.C(collectionToodlers).Insert(&user); err != nil {
+		log.Panic(err)
+	}
 
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {

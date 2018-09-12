@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -17,14 +18,18 @@ type csrfToken struct {
 
 // isCSRFTokenValid checks the request for a valid CSRF token
 func isCSRFTokenValid(c *gin.Context) bool {
+	var err error
 	csrfToken := csrfToken{}
 	// save the request body
-	body, _ := ioutil.ReadAll(c.Request.Body)
+	body, err := ioutil.ReadAll(c.Request.Body)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	c.Bind(&csrfToken)
+	err = c.Bind(&csrfToken)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	if err != nil {
+		log.Panic(err)
+	}
 
 	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
 }

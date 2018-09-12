@@ -8,8 +8,8 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-// Mongo databse ORM
-var Mongo *mgo.Database
+// mongo databse ORM
+var mongo *mgo.Database
 
 type connection struct {
 	Server   string
@@ -28,14 +28,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Mongo = session.DB(connect.Database)
+	mongo = session.DB(connect.Database)
 }
 
 const (
-	// CollectionToodles contains toodles
-	CollectionToodles = "toodles"
-	// CollectionToodlers contains toodlers info
-	CollectionToodlers = "toodlers"
+	// collectionToodles contains toodles
+	collectionToodles = "toodles"
+	// collectionToodlers contains toodlers info
+	collectionToodlers = "toodlers"
 )
 
 // Toodle model

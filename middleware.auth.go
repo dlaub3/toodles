@@ -23,7 +23,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 		MaxRefresh:   time.Hour,
 		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
 			user := User{}
-			err := Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
+			err := mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrf(c)
 			if err != nil {
 				c.Set("httpStatus", 401)
@@ -40,7 +40,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
 			user := User{}
-			Mongo.C(CollectionToodlers).Find(bson.M{"email": userId}).One(&user)
+			mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrfToken, err := c.Request.Cookie("csrf")
 			if err != nil {
 				csrfToken, err = csrf(c)

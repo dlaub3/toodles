@@ -6,15 +6,16 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dlaub3/toodles/crypt"
 	"github.com/gin-gonic/gin"
 )
 
-// CsrfToken binds with form submit csrf
+// csrfToken binds with form submit csrf
 type csrfToken struct {
 	CsrfToken string `form:"csrf" json:"csrf"`
 }
 
-// IsCSRFTokenValid checks the request for a valid CSRF token
+// isCSRFTokenValid checks the request for a valid CSRF token
 func isCSRFTokenValid(c *gin.Context) bool {
 	csrfToken := csrfToken{}
 	// save the request body
@@ -28,13 +29,39 @@ func isCSRFTokenValid(c *gin.Context) bool {
 	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
 }
 
-// InvalidateCookies for JWT and CSRF
+// csrf sets a csrf token in a cookie
+func csrf(c *gin.Context) (*http.Cookie, error) {
+
+	cookie, err := c.Request.Cookie("csrf")
+
+	if err != nil {
+		expire := time.Now().UTC().Add(time.Hour)
+		maxage := int(expire.Unix() - time.Now().Unix())
+
+		csrf, err := crypt.GenerateRandomString(32)
+		cookie := http.Cookie{
+			Name:     "csrf",
+			Value:    csrf,
+			Path:     "/",
+			Expires:  expire,
+			MaxAge:   maxage,
+			HttpOnly: false, // only access with the secure option
+			Secure:   false, //@dev change when in prod mode
+			// No support for SameSite yet https://golang.org/src/net/http/cookie.go
+		}
+		http.SetCookie(c.Writer, &cookie)
+		return &cookie, err
+	}
+	return cookie, err
+}
+
+// invalidateCookies for JWT and CSRF
 func invalidateCookies(c *gin.Context) {
 	invalidateCSRF(c)
 	invalidateJWT(c)
 }
 
-// InvalidateCSRF Cookie
+// invalidateCSRF Cookie
 func invalidateCSRF(c *gin.Context) {
 	csrfcookie := http.Cookie{
 		Name:    "csrf",
@@ -44,7 +71,7 @@ func invalidateCSRF(c *gin.Context) {
 	http.SetCookie(c.Writer, &csrfcookie)
 }
 
-// InvalidateJWT Cooke
+// invalidateJWT Cooke
 func invalidateJWT(c *gin.Context) {
 	jwtcookie := http.Cookie{
 		Name:    "token",
@@ -54,14 +81,14 @@ func invalidateJWT(c *gin.Context) {
 	http.SetCookie(c.Writer, &jwtcookie)
 }
 
-// ShowErrorPage for bad requests
+// showErrorPage for bad requests
 func showErrorPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Our servers are busy please stand bye. 😞",
 	}, "error.html")
 }
 
-// HandleUnauthorized request repsonses
+// handleUnauthorized request repsonses
 func handleUnauthorized(c *gin.Context) {
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {

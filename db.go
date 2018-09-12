@@ -6,14 +6,13 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-// Mongo databse ORM
-var Mongo *mgo.Database
+var mongo *mgo.Database
 
 const (
-	// CollectionToodles is todos
-	CollectionToodles = "toodles"
-	// CollectionToodlers is users
-	CollectionToodlers = "toodlers"
+	// todos
+	collectionToodles = "toodles"
+	// users
+	collectionToodlers = "toodlers"
 )
 
 func dbConnect() {
@@ -31,5 +30,5 @@ func dbConnect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Mongo = session.DB(connect.Database)
+	mongo = session.DB(connect.Database)
 }

@@ -16,7 +16,7 @@ func getAToodle(c *gin.Context) {
 	toodle := Toodle{}
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	Mongo.C(CollectionToodles).Find(query).One(&toodles)
+	mongo.C(collectionToodles).Find(query).One(&toodles)
 
 	for _, item := range toodles.Toodles {
 		if item.ID == id {
@@ -44,7 +44,7 @@ func createAToodle(c *gin.Context) {
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
-	Mongo.C(CollectionToodles).Upsert(query, update)
+	mongo.C(collectionToodles).Upsert(query, update)
 
 	showAToodle(c, toodle)
 }
@@ -63,11 +63,11 @@ func updateAToodle(c *gin.Context) {
 	toodle.ID = bson.ObjectIdHex(id)
 	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
 	update := bson.M{"$set": bson.M{"toodles.$": &toodle}}
-	Mongo.C(CollectionToodles).Update(query, update)
+	mongo.C(collectionToodles).Update(query, update)
 	showAToodle(c, toodle)
 }
 
-func completeToodle(c *gin.Context) {
+func completeAToodle(c *gin.Context) {
 	validRequest := isCSRFTokenValid(c)
 	if !validRequest {
 		showErrorPage(c)
@@ -79,12 +79,12 @@ func completeToodle(c *gin.Context) {
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
 	update := bson.M{"$set": bson.M{"toodles.$.status": "complete"}}
-	Mongo.C(CollectionToodles).Update(query, update)
+	mongo.C(collectionToodles).Update(query, update)
 
 	toodles := Toodles{}
 	toodle := Toodle{}
 	query = bson.M{"_id": bson.ObjectIdHex(UID)}
-	Mongo.C(CollectionToodles).Find(query).One(&toodles)
+	mongo.C(collectionToodles).Find(query).One(&toodles)
 
 	for _, item := range toodles.Toodles {
 		if item.ID == bson.ObjectIdHex(id) {
@@ -110,7 +110,7 @@ func deleteAToodle(c *gin.Context) {
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$pull": bson.M{"toodles": bson.M{"_id": bson.ObjectIdHex(id)}}}
-	Mongo.C(CollectionToodles).Upsert(query, update)
+	mongo.C(collectionToodles).Upsert(query, update)
 	showAllToodles(c)
 }
 
@@ -119,7 +119,7 @@ func deleteAToodle(c *gin.Context) {
 	using a hidden form field.
 */
 
-func updateOrDeleteToodle(c *gin.Context) {
+func updateOrDeleteAToodle(c *gin.Context) {
 
 	method := c.PostForm("method")
 
@@ -146,7 +146,7 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
-	Mongo.C(CollectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
+	mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
 
 	activeToodles := Toodles{}
 	active := 0

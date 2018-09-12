@@ -38,7 +38,7 @@ func registerNewUser(c *gin.Context) {
 
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
-	Mongo.C(CollectionToodlers).Find(query).One(&existingUser)
+	mongo.C(collectionToodlers).Find(query).One(&existingUser)
 
 	if existingUser.Email == user.Email {
 		c.Set("httpStatus", 400)
@@ -48,7 +48,7 @@ func registerNewUser(c *gin.Context) {
 	}
 
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
-	Mongo.C(CollectionToodlers).Insert(&user)
+	mongo.C(collectionToodlers).Insert(&user)
 
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {

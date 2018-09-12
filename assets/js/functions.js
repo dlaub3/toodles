@@ -276,8 +276,7 @@ function getToodleHTML(id, title, content, cookie) {
                             <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}" required>
                         </div>
                         <div class="form-group">
-                            <textarea name="content" type="text" value="${content}" class="form-control" id="content" placeholder="${content}" rows="3">
-                            </textarea>
+                            <textarea name="content" type="text" class="form-control" id="content" placeholder="${content}" rows="3">${content}</textarea>
                         </div>
                         <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
                     </form>

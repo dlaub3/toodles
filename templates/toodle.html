@@ -23,7 +23,7 @@
                 <input name="title" type="text" value="{{.payload.Title}}" class="form-control" id="title" placeholder="{{.payload.Title}}" required>
             </div>
             <div class="form-group">
-                <input name="content" type="text" value="{{.payload.Content}}" class="form-control" id="content" placeholder="{{.payload.Content}}">
+              <textarea name="content" type="text" class="form-control" id="content" placeholder="{{.payload.Content}}" rows="3">{{.payload.Content}}</textarea>
             </div>
             <a href="/toodles" class="btn btn-dark">Back</a>
             <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.payload.ID.Hex}} )">Update</button>

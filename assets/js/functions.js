@@ -147,6 +147,11 @@ function deleteToodle(e, id) {
 function addToodle(e) {
     e.preventDefault();
 
+    let form = $(e.target).closest("form");
+    if(!validateToodle(form)) {
+        return;
+    }
+
     let formData = $("#add-toodle").serializeObject();
     fetch("/toodles", {
       method: 'POST',
@@ -179,6 +184,11 @@ function updateToodle(e, id) {
     e.preventDefault();
 
     let t = e.target;
+    let form = $(t).closest("form");
+    if(!validateToodle(form)) {
+        return;
+    }
+
     let formData = $(t).closest( "form" ).serializeObject();
 
     fetch("/toodles/" + id, {
@@ -274,6 +284,7 @@ function getToodleHTML(id, title, content, cookie) {
                         <input type="hidden" name="method" value="put">
                         <div class="form-group">
                             <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}" required>
+                            <small class="form-text text-danger titleHelp"></small>
                         </div>
                         <div class="form-group">
                             <textarea name="content" type="text" class="form-control" id="content" placeholder="${content}" rows="3">${content}</textarea>
@@ -326,6 +337,10 @@ function validatePassword(target) {
     return password.length > 3;
 }
 
+function validateTitle(target) {
+    return $(target).find('input[name="title"]').val().trim() !== "";
+}
+
 function validateLoginForm() {
 
     let validEmail = validateEmail('#email');
@@ -346,4 +361,12 @@ function validateSignupForm() {
     validPassword ? $("#passwordHelp").text("") : $("#passwordHelp").text("Your password should be at least 4 characters.");
 
     return validEmail && validPassword;
+}
+
+function validateToodle(form) {
+    let validTitle = validateTitle(form);
+
+    validTitle ? $(form).find(".titleHelp").text("") : $(form).find(".titleHelp").text("Title should not be  empty.");
+
+    return validTitle;
 }

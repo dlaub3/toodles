@@ -1,14 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 var r *gin.Engine
+var config Config
 
 func main() {
+
+	config = Config{}
+	config.Read()
 
 	// Set the router as the default one provided by Gin
 	r = gin.Default()
@@ -18,23 +23,17 @@ func main() {
 	r.Use(gin.Recovery())
 
 	// Process the templates at the start so that they don't have to be loaded
-	// from the disk again. This makes serving HTML pages very fast.
 	r.LoadHTMLGlob("templates/*")
-
-	// Loads assets
 	r.Static("/assets", "./assets")
-
-	// Initialize the routes
+	dbConnect()
 	initializeRoutes()
-
-	// Start serving the application
 	r.Run()
 
 }
 
 // send the http response
 func render(c *gin.Context, data gin.H, templateName string) {
-
+	fmt.Println(config)
 	error, _ := c.Get("error")
 	data["error"] = error
 
@@ -55,7 +54,7 @@ func render(c *gin.Context, data gin.H, templateName string) {
 		httpStatus = http.StatusOK
 	}
 
-	// get alternate httpStatus
+	// over ride HTTP status with alternate httpStatus
 	status, _ := c.Get("httpStatus")
 	if status != nil {
 		httpStatus = status.(int)

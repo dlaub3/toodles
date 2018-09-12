@@ -6,7 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// App config variables from toml file
+// Config variables from toml file
 type Config struct {
 	Server    string
 	Database  string

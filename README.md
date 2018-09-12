@@ -8,8 +8,8 @@ Exploreing the Gin framework and Mgo
 http://localhost:8081 - enter username and password
 
 
-go build 
-./toodles
+* ` go build `
+* ` ./toodles `
 
 ### Plans
 

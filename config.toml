@@ -1,3 +1,4 @@
 server = "localhost"
 database = "toodles"
 secretkey = "gohangasalamiimalasagnahog"
+logpath = "logs"

@@ -11,6 +11,7 @@ type Config struct {
 	Server    string
 	Database  string
 	SecretKey string
+	LogPath   string
 }
 
 // Read and parse the configuration file

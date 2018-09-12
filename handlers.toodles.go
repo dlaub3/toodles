@@ -18,9 +18,7 @@ func getAToodle(c *gin.Context) {
 	toodle := Toodle{}
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		log.Panic(err)
-	}
+	mongo.C(collectionToodles).Find(query).One(&toodles)
 
 	for _, item := range toodles.Toodles {
 		if item.ID == id {
@@ -98,9 +96,7 @@ func completeAToodle(c *gin.Context) {
 	toodles := Toodles{}
 	toodle := Toodle{}
 	query = bson.M{"_id": bson.ObjectIdHex(UID)}
-	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		log.Panic(err)
-	}
+	mongo.C(collectionToodles).Find(query).One(&toodles)
 
 	for _, item := range toodles.Toodles {
 		if item.ID == bson.ObjectIdHex(id) {
@@ -164,9 +160,7 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
-	if err := mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles); err != nil {
-		log.Panic(err)
-	}
+	mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
 
 	activeToodles := Toodles{}
 	active := 0

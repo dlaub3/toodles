@@ -146,8 +146,8 @@ function deleteToodle(e, id) {
 
 function addToodle(e) {
     e.preventDefault();
-
-    let form = $(e.target).closest("form");
+    let t = e.target;
+    let form = $(t).closest("form");
     if(!validateToodle(form)) {
         return;
     }
@@ -171,7 +171,7 @@ function addToodle(e) {
     })
     .then(data => {
         data = data.payload;
-        console.table(data);
+        resetForm(form);
         let cookie = getCookie("csrf");
         let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
         $("ul").append(toodle);
@@ -369,4 +369,9 @@ function validateToodle(form) {
     validTitle ? $(form).find(".titleHelp").text("") : $(form).find(".titleHelp").text("Title should not be  empty.");
 
     return validTitle;
+}
+
+function resetForm(form) {
+    $(form).find('[name="title"]').val("");
+    $(form).find('[name="content"]').val("");
 }

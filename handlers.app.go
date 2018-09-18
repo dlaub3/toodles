@@ -36,7 +36,7 @@ func registerNewUser(c *gin.Context) {
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
 	if err := c.Bind(&user); err != nil {
-		log.Panic(err)
+		return
 	}
 
 	query := bson.M{"email": user.Email}
@@ -61,7 +61,6 @@ func registerNewUser(c *gin.Context) {
 	} else {
 		c.Redirect(302, "/login")
 	}
-
 }
 
 func logout(c *gin.Context) {

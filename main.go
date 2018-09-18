@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 var r *gin.Engine
@@ -28,6 +29,7 @@ func main() {
 
 	// Log HTTP requests to file
 	gin.DisableConsoleColor()
+
 	f, err := os.Create(config.LogPath + "http.log")
 	if err != nil {
 		log.Fatal(err)
@@ -36,6 +38,8 @@ func main() {
 
 	// Set the router as the default one provided by Gin
 	r = gin.Default()
+	binding.Validator = new(defaultValidator)
+	r.Use(middlewareErrors())
 
 	// Process the templates at the start so that they don't have to be loaded
 	r.LoadHTMLGlob("templates/*")

@@ -95,23 +95,23 @@ func middlewareErrors() gin.HandlerFunc {
 
 					if !c.Writer.Written() {
 						c.Set("httpStatus", c.Writer.Status())
-						render(c, gin.H{"Error": e.Error()}, "error.html")
+						render(c, gin.H{"error": e.Error()}, "error.html")
 					}
 				case gin.ErrorTypeBind:
 					errs := e.Err.(validator.ValidationErrors)
-					list := make(map[int]string)
-					for field, err := range errs {
-						list[field] = validationErrorToText(err)
+					list := make(map[string]string)
+					for _, err := range errs {
+						list[err.Field()] = validationErrorToText(err)
 					}
 
 					c.Set("httpStatus", c.Writer.Status())
 
-					render(c, gin.H{"Errors": list}, "error.html")
+					render(c, gin.H{"error": list}, "error.html")
 				}
 
 				if !c.Writer.Written() {
 					c.Set("httpStatus", 500)
-					render(c, gin.H{"Error": errorInternalError.Error()}, "error.html")
+					render(c, gin.H{"error": errorInternalError.Error()}, "error.html")
 				}
 			}
 		}

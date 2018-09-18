@@ -41,7 +41,9 @@ func registerNewUser(c *gin.Context) {
 
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
-	mongo.C(collectionToodlers).Find(query).One(&existingUser)
+	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err != nil {
+		log.Panic(err)
+	}
 
 	if existingUser.Email == user.Email {
 		c.Set("httpStatus", 400)

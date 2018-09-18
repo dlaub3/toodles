@@ -59,12 +59,12 @@ function login(e) {
         if  ([200,401].includes(response.status)) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
-        if (data.error) {
-            $("#emailHelp").text(data.error);
+        if (data.error != "") {
+            setError(err);
         } else {
             window.location.replace(location.origin + "/toodles");
         }
@@ -97,12 +97,12 @@ function signup(e) {
         if  ([201,302,400].includes(response.status)) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
         if (data.error) {
-            $("#emailHelp").text(data.error);
+            setError(data.error)
         } else {
             $(".card-body").addClass("text-center");
             $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
@@ -130,17 +130,17 @@ function deleteToodle(e, id) {
         if  (response.status == 200) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
         if (data.error != "") {
-            handleError(data.error)
-            return false;
+            setError(err);
+        } else {
+            let t = e.target;
+            $(t).closest( "li" ).remove();
+            decriment('.activeToodles', 1);
         }
-        let t = e.target;
-        $(t).closest( "li" ).remove();
-        decriment('.activeToodles', 1);
     });
 }
 
@@ -166,16 +166,20 @@ function addToodle(e) {
         if  (response.status == 201) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
-        data = data.payload;
-        resetForm(form);
-        let cookie = getCookie("csrf");
-        let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
-        $("ul").append(toodle);
-        increment('.activeToodles', 1);
+        if (data.error != "") {
+            setError(err);
+        } else {
+            data = data.payload;
+            resetForm(form);
+            let cookie = getCookie("csrf");
+            let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
+            $("ul").append(toodle);
+            increment('.activeToodles', 1);
+        }
     });
 }
 
@@ -204,14 +208,18 @@ function updateToodle(e, id) {
         if  (response.status == 201) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
-        data = data.payload;
-        $(t).closest( "li" ).find(".title").text(data.title);
-        $(t).closest( "li" ).find("input[name=title]").val(data.title)
-        $(t).closest( "li" ).find("input[name=content]").val(data.content)
+        if (data.error != "") {
+            setError(err);
+        } else {
+            data = data.payload;
+            $(t).closest( "li" ).find(".title").text(data.title);
+            $(t).closest( "li" ).find("input[name=title]").val(data.title)
+            $(t).closest( "li" ).find("input[name=content]").val(data.content)
+        }
     });
 }
 
@@ -234,16 +242,19 @@ function completeToodle(e, id) {
         if  (response.status == 201) {
             return response.json();
         } else {
-            handleError(response.status, response.json())
+            handleError(response.status)
         }
     })
     .then(data => {
-        console.table(data.payload);
-        let toodle = $(t).closest( "li" );
-        toodle.css('background', 'green')
-        toodle.fadeOut();
-        decriment('.activeToodles', 1);
-        increment('.completedToodles', 1);
+        if (data.error != "") {
+            setError(err);
+        } else {
+            let toodle = $(t).closest( "li" );
+            toodle.css('background', 'green')
+            toodle.fadeOut();
+            decriment('.activeToodles', 1);
+            increment('.completedToodles', 1);
+        }
     });
 }
 
@@ -306,12 +317,18 @@ function checkInput(event) {
     $(t).closest('li').find("input[type=checkbox]").prop("checked", !currentState);
 }
 
-function handleError(status, error) {
-    if (error === "unauthorized" || status == 401) {
+function handleError(status) {
+    if (status == 401) {
         window.location.replace(location.origin + "/login");
     } else {
-        alert("There was an error processing your request. Please try again.");
         console.log(error)
+    }
+}
+
+function setError(err) {
+    for (let prop in err) {
+        let field = "#" + prop.toLocaleLowerCase() + "Help";
+        $(field).text(err[prop]);
     }
 }
 

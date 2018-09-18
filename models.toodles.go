@@ -5,7 +5,7 @@ import "github.com/globalsign/mgo/bson"
 // Toodle model
 type Toodle struct {
 	ID      bson.ObjectId `bson:"_id" form:"id" json:"id" `
-	Title   string        `bson:"title" form:"title" json:"title"`
+	Title   string        `bson:"title" form:"title" json:"title" binding:"required,max=150"`
 	Content string        `bson:"content" form:"content" json:"content"`
 	Status  string        `bson:"status" form:"status" json:"status"`
 }

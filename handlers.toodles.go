@@ -18,7 +18,9 @@ func getAToodle(c *gin.Context) {
 	toodle := Toodle{}
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	mongo.C(collectionToodles).Find(query).One(&toodles)
+	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
+		log.Panic(err)
+	}
 
 	for _, item := range toodles.Toodles {
 		if item.ID == id {
@@ -43,7 +45,7 @@ func createAToodle(c *gin.Context) {
 	toodle.ID = bson.NewObjectId()
 	UID := c.Keys["uid"].(string)
 	if err := c.Bind(&toodle); err != nil {
-		log.Panic(err)
+		return
 	}
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
@@ -65,7 +67,7 @@ func updateAToodle(c *gin.Context) {
 	id := c.Param("toodle_id")
 	toodle := Toodle{}
 	if err := c.Bind(&toodle); err != nil {
-		log.Panic(err)
+		return
 	}
 	UID := c.Keys["uid"].(string)
 	toodle.ID = bson.ObjectIdHex(id)
@@ -96,7 +98,9 @@ func completeAToodle(c *gin.Context) {
 	toodles := Toodles{}
 	toodle := Toodle{}
 	query = bson.M{"_id": bson.ObjectIdHex(UID)}
-	mongo.C(collectionToodles).Find(query).One(&toodles)
+	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
+		log.Panic(err)
+	}
 
 	for _, item := range toodles.Toodles {
 		if item.ID == bson.ObjectIdHex(id) {
@@ -160,7 +164,9 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
-	mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles)
+	if err := mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles); err != nil {
+		log.Panic(err)
+	}
 
 	activeToodles := Toodles{}
 	active := 0

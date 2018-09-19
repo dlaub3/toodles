@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -19,7 +21,7 @@ func getAToodle(c *gin.Context) {
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 
 	for _, item := range toodles.Toodles {
@@ -86,20 +88,24 @@ func completeAToodle(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("testing one")
+
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
 
 	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
 	update := bson.M{"$set": bson.M{"toodles.$.status": "complete"}}
-	if err := mongo.C(collectionToodles).Update(query, update); err != nil {
-		log.Panic(err)
+	if err := mongo.C(collectionToodles).Update(query, update); err == nil {
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	toodles := Toodles{}
 	toodle := Toodle{}
 	query = bson.M{"_id": bson.ObjectIdHex(UID)}
 	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	for _, item := range toodles.Toodles {

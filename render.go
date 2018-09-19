@@ -9,7 +9,7 @@ import (
 // send the http response
 func render(c *gin.Context, data gin.H, templateName string) {
 
-	if errors, _ := c.Get("error"); errors != nil {
+	if errors, _ := c.Get("error"); errors != nil && errors != "" {
 		data["error"] = errors
 	}
 

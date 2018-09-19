@@ -25,22 +25,29 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			user := User{}
 			err := mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user)
 			csrf(c)
+
+			errors := make(map[string]string)
+			errors["Email"] = "Your username and password do not match."
+
 			if err != nil {
 				c.Set("httpStatus", 401)
-				c.Set("error", "Your username and password do not match.")
+				c.Set("error", errors)
 				return userId, false
 			}
 			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
 				c.Set("httpStatus", 401)
-				c.Set("error", "Your username and password do not match.")
+				c.Set("error", errors)
 				return userId, false
 			}
 			return userId, true
 		},
 		Authorizator: func(userId string, c *gin.Context) bool {
 			user := User{}
-			mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user)
+			if err := mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user); err != nil {
+				showErrorPage(c)
+				return false
+			}
 			csrfToken, err := c.Request.Cookie("csrf")
 			if err != nil {
 				csrfToken, err = csrf(c)

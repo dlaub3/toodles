@@ -89,7 +89,7 @@ func invalidateJWT(c *gin.Context) {
 // showErrorPage for bad requests
 func showErrorPage(c *gin.Context) {
 	render(c, gin.H{
-		"title": "Our servers are busy please stand bye. 😞",
+		"error": "Our servers are busy please stand bye. 😞",
 	}, "error.html")
 }
 

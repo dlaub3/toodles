@@ -64,7 +64,7 @@ function login(e) {
     })
     .then(data => {
         if (data.error != "") {
-            setError(err);
+            setError(data.error);
         } else {
             window.location.replace(location.origin + "/toodles");
         }

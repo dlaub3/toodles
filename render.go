@@ -9,8 +9,8 @@ import (
 // send the http response
 func render(c *gin.Context, data gin.H, templateName string) {
 
-	if error, _ := c.Get("error"); error != nil {
-		data["error"] = error
+	if errors, _ := c.Get("error"); errors != nil {
+		data["error"] = errors
 	}
 
 	cookie, _ := c.Request.Cookie("token")

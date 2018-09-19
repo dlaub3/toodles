@@ -327,9 +327,8 @@ function handleError(status) {
 
 function setError(err) {
     for (let prop in err) {
-        let field = prop.toLocaleLowerCase() + "Help";
-        let prefix = $("#" + field) ? "#" : ".";
-        $(prefix + field).text(err[prop]);
+        let field =  "#" + prop.toLowerCase() + "Help";
+        $(field).text(err[prop]);
     }
 }
 

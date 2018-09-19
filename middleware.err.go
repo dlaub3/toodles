@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -88,14 +89,16 @@ func middlewareErrors() gin.HandlerFunc {
 		c.Next()
 
 		if len(c.Errors) > 0 {
+
+			regex, _ := regexp.Compile("([^\\/]+)$")
+			template := regex.FindString(c.Request.Referer()) + ".html"
+
 			for _, e := range c.Errors {
 
 				switch e.Type {
 				case gin.ErrorTypePublic:
-
 					if !c.Writer.Written() {
-						c.Set("httpStatus", c.Writer.Status())
-						render(c, gin.H{"error": e.Error()}, "error.html")
+						render(c, gin.H{"error": e.Error()}, template)
 					}
 				case gin.ErrorTypeBind:
 					errs := e.Err.(validator.ValidationErrors)
@@ -103,15 +106,14 @@ func middlewareErrors() gin.HandlerFunc {
 					for _, err := range errs {
 						list[err.Field()] = validationErrorToText(err)
 					}
+					render(c, gin.H{"error": list}, template)
 
-					c.Set("httpStatus", c.Writer.Status())
-
-					render(c, gin.H{"error": list}, "error.html")
+				default:
+					// Log other errors
 				}
 
 				if !c.Writer.Written() {
-					c.Set("httpStatus", 500)
-					render(c, gin.H{"error": errorInternalError.Error()}, "error.html")
+					render(c, gin.H{"error": errorInternalError.Error()}, template)
 				}
 			}
 		}

@@ -12,6 +12,10 @@ func initializeRoutes() {
 		c.String(200, "pong")
 	})
 
+	r.NoRoute(func(c *gin.Context) {
+		render(c, gin.H{"error": "Not Found"}, "404.html")
+	})
+
 	r.GET("/", showHomePage)
 	r.GET("/signup", showSignupPage)
 	r.POST("/signup", registerNewUser)

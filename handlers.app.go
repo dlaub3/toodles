@@ -41,13 +41,11 @@ func registerNewUser(c *gin.Context) {
 
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
-	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err != nil {
-		log.Panic(err)
-	}
-
-	if existingUser.Email == user.Email {
+	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err == nil {
 		c.Set("httpStatus", 400)
-		c.Set("error", "Please choose a different username.")
+		errors := make(map[string]string)
+		errors["Email"] = "Please choose a different email."
+		c.Set("error", errors)
 		showSignupPage(c)
 		return
 	}

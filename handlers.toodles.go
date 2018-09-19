@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,7 +51,7 @@ func createAToodle(c *gin.Context) {
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
 	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 
 	showAToodle(c, toodle)
@@ -76,7 +74,7 @@ func updateAToodle(c *gin.Context) {
 	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
 	update := bson.M{"$set": bson.M{"toodles.$": &toodle}}
 	if err := mongo.C(collectionToodles).Update(query, update); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 	showAToodle(c, toodle)
 }
@@ -87,8 +85,6 @@ func completeAToodle(c *gin.Context) {
 		showErrorPage(c)
 		return
 	}
-
-	fmt.Println("testing one")
 
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
@@ -133,7 +129,7 @@ func deleteAToodle(c *gin.Context) {
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$pull": bson.M{"toodles": bson.M{"_id": bson.ObjectIdHex(id)}}}
 	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 	showAllToodles(c)
 }
@@ -171,7 +167,7 @@ func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
 	if err := mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 
 	activeToodles := Toodles{}

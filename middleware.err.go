@@ -90,7 +90,7 @@ func middlewareErrors() gin.HandlerFunc {
 
 		if len(c.Errors) > 0 {
 
-			regex, _ := regexp.Compile("([^\\/]+)$")
+			regex, _ := regexp.Compile("https?:w{0,3}\\/{2}.+\\.\\w{3}\\/([a-z]+)")
 			template := regex.FindString(c.Request.Referer()) + ".html"
 
 			for _, e := range c.Errors {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/dlaub3/toodles/crypt"
@@ -52,7 +51,7 @@ func registerNewUser(c *gin.Context) {
 
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
 	if err := mongo.C(collectionToodlers).Insert(&user); err != nil {
-		log.Panic(err)
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 	}
 
 	contentType := c.Request.Header.Get("Content-Type")

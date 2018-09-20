@@ -20,6 +20,7 @@ func getAToodle(c *gin.Context) {
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	for _, item := range toodles.Toodles {
@@ -35,12 +36,6 @@ func getAToodle(c *gin.Context) {
 
 func createAToodle(c *gin.Context) {
 
-	validRequest := isCSRFTokenValid(c)
-	if !validRequest {
-		showErrorPage(c)
-		return
-	}
-
 	toodle := Toodle{}
 	toodle.ID = bson.NewObjectId()
 	UID := c.Keys["uid"].(string)
@@ -52,17 +47,13 @@ func createAToodle(c *gin.Context) {
 	update := bson.M{"$push": bson.M{"toodles": &toodle}}
 	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	showAToodle(c, toodle)
 }
 
 func updateAToodle(c *gin.Context) {
-	validRequest := isCSRFTokenValid(c)
-	if !validRequest {
-		showErrorPage(c)
-		return
-	}
 
 	id := c.Param("toodle_id")
 	toodle := Toodle{}
@@ -75,16 +66,12 @@ func updateAToodle(c *gin.Context) {
 	update := bson.M{"$set": bson.M{"toodles.$": &toodle}}
 	if err := mongo.C(collectionToodles).Update(query, update); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 	showAToodle(c, toodle)
 }
 
 func completeAToodle(c *gin.Context) {
-	validRequest := isCSRFTokenValid(c)
-	if !validRequest {
-		showErrorPage(c)
-		return
-	}
 
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
@@ -118,18 +105,13 @@ func completeAToodle(c *gin.Context) {
 
 func deleteAToodle(c *gin.Context) {
 
-	validRequest := isCSRFTokenValid(c)
-	if !validRequest {
-		showErrorPage(c)
-		return
-	}
-
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
 	query := bson.M{"_id": bson.ObjectIdHex(UID)}
 	update := bson.M{"$pull": bson.M{"toodles": bson.M{"_id": bson.ObjectIdHex(id)}}}
 	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 	showAllToodles(c)
 }
@@ -155,9 +137,8 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 	showSingle := c.Keys["showsingle"]
 	if contentType == "application/json" || showSingle == true {
 		render(c, gin.H{
-			"title":     "Toodle",
-			"csrfToken": c.Keys["csrftoken"],
-			"payload":   toodle}, "toodle.html")
+			"title":   "Toodle",
+			"payload": toodle}, "toodle.html")
 	} else {
 		showAllToodles(c)
 	}
@@ -168,6 +149,7 @@ func showAllToodles(c *gin.Context) {
 	UID := c.Keys["uid"].(string)
 	if err := mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	activeToodles := Toodles{}
@@ -186,7 +168,6 @@ func showAllToodles(c *gin.Context) {
 		"active":    active,
 		"completed": completed,
 		"title":     "All your Toodles",
-		"csrfToken": c.Keys["csrftoken"],
 		"payload":   activeToodles.Toodles,
 	}, "toodles.html")
 }

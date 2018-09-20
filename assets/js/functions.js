@@ -56,14 +56,14 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([200,401].includes(response.status)) {
+        if  ([200,302,401].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status)
         }
     })
     .then(data => {
-        if (data.error != "") {
+        if (data.error) {
             setError(data.error);
         } else {
             window.location.replace(location.origin + "/toodles");
@@ -134,8 +134,8 @@ function deleteToodle(e, id) {
         }
     })
     .then(data => {
-        if (data.error != "") {
-            setError(err);
+        if (data.error) {
+            setError(error);
         } else {
             let t = e.target;
             $(t).closest( "li" ).remove();
@@ -163,15 +163,15 @@ function addToodle(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 201) {
+        if  ([200,400].includes(response.status)) {
             return response.json();
         } else {
             handleError(response.status)
         }
     })
     .then(data => {
-        if (data.error != "") {
-            setError(err);
+        if (data.error) {
+            setError(data.error);
         } else {
             data = data.payload;
             resetForm(form);

@@ -52,6 +52,7 @@ func registerNewUser(c *gin.Context) {
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
 	if err := mongo.C(collectionToodlers).Insert(&user); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		return
 	}
 
 	contentType := c.Request.Header.Get("Content-Type")

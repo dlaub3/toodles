@@ -40,6 +40,7 @@ func main() {
 	r = gin.Default()
 	binding.Validator = new(defaultValidator)
 	r.Use(middlewareErrors())
+	r.Use(middlewareCSRF())
 
 	// Process the templates at the start so that they don't have to be loaded
 	r.LoadHTMLGlob("templates/*")

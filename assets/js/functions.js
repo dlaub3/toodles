@@ -212,8 +212,8 @@ function updateToodle(e, id) {
         }
     })
     .then(data => {
-        if (data.error != "") {
-            setError(err);
+        if (data.error) {
+            setError(data.error);
         } else {
             data = data.payload;
             $(t).closest( "li" ).find(".title").text(data.title);
@@ -246,8 +246,8 @@ function completeToodle(e, id) {
         }
     })
     .then(data => {
-        if (data.error != "") {
-            setError(err);
+        if (data.error) {
+            setError(data.error);
         } else {
             let toodle = $(t).closest( "li" );
             toodle.css('background', 'green')

@@ -1,9 +1,9 @@
 <!--index.html-->
 
 <!--Embed the header.html template at this location-->
-{{ template "header.html" .}}
+{{ template "header.html" . }}
 
-<h2>Your Active Toodles</h2>
+<h1 class="cover-heading jumbotron">Your Active Toodles</h1>
 <div class="activeToodles">Active: <span>{{.active}}</span></div>
 <div class="completedToodles">Completed: <span>{{.completed}}</span></div>
 <div class="card w-100 mb-4">
@@ -24,7 +24,7 @@
 </div>
 
 <ul class="list-group">
-  {{range .payload }}
+  {{range .toodles }}
     <li class="list-group-item">
 
         <a href="/toodles/{{.ID.Hex}}" onClick="checkInput(event);">

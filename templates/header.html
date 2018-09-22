@@ -15,8 +15,8 @@
 
   <!--Use bootstrap to make the application look nice-->
   <script src="/assets/js/jquery-3.3.1.js"></script>
-  <script src="/assets/js/functions.js"></script>
   <script async src="/assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/functions.js"></script>
 
   <script>
     $(document).ready(function(){
@@ -33,3 +33,15 @@
     {{ template "menu.html" . }}
     <div class="container">
     <main role="main" class="inner cover">
+        <div id="generalHelp" class="form-text">
+          {{ if .genError }}
+          <div class="card alert alert-dismissible" role="alert">
+              <div class="card-body text-danger">
+                  <strong>Error: </strong>{{ .genError }}
+              </div>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {{ end }}
+        </div > 

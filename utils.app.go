@@ -9,6 +9,7 @@ import (
 
 	"github.com/dlaub3/toodles/crypt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
 )
 
 // csrfToken binds with form submit csrf
@@ -91,6 +92,23 @@ func showErrorPage(c *gin.Context) {
 	render(c, gin.H{
 		"error": "Our servers are busy please stand bye. 😞",
 	}, "error.html")
+}
+
+func getValidationErrorMsg(e error) map[string]string {
+	list := make(map[string]string)
+	for _, field := range e.(validator.ValidationErrors) {
+		list[field.Field()] = validationErrorToText(field)
+	}
+	return list
+}
+
+func getGeneralErrorMsg(key string) map[string]string {
+	list := make(map[string]string)
+	errMsgs := map[string]string{
+		"database": "There was an error processing your request, please try again.",
+	}
+	list["general"] = errMsgs[key]
+	return list
 }
 
 // handleUnauthorized request repsonses

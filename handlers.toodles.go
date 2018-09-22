@@ -22,6 +22,7 @@ func getAToodle(c *gin.Context) {
 		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
 		c.Keys["httpStatus"] = http.StatusBadRequest
 		log.Println("getAToodle: missing id")
+		showAllToodles(c)
 		return
 	}
 
@@ -71,6 +72,7 @@ func updateAToodle(c *gin.Context) {
 		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
 		c.Keys["httpStatus"] = http.StatusBadRequest
 		log.Println("updateAToodle: missing id")
+		showAToodle(c, toodle)
 		return
 	}
 
@@ -122,6 +124,7 @@ func completeAToodle(c *gin.Context) {
 		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
 		c.Keys["httpStatus"] = http.StatusBadRequest
 		log.Println("completeAToodle: missing id")
+		showAllToodles(c)
 		return
 	}
 
@@ -130,7 +133,6 @@ func completeAToodle(c *gin.Context) {
 		c.Keys["httpStatus"] = http.StatusInternalServerError
 		log.Println("completeAToodle: " + err.Error())
 		log.Println("Params: id=" + id + " UID=" + UID)
-		return
 	}
 
 	showAllToodles(c)
@@ -145,6 +147,7 @@ func deleteAToodle(c *gin.Context) {
 		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
 		c.Keys["httpStatus"] = http.StatusBadRequest
 		log.Println("updateAToodle: missing id")
+		showAllToodles(c)
 		return
 	}
 
@@ -153,7 +156,6 @@ func deleteAToodle(c *gin.Context) {
 		c.Keys["httpStatus"] = http.StatusInternalServerError
 		log.Println("deleteAToodle: " + err.Error())
 		log.Println("Params: id=" + id + " UID=" + UID)
-		return
 	}
 
 	showAllToodles(c)

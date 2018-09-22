@@ -56,11 +56,7 @@ function login(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([200,302,401].includes(response.status)) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {
@@ -94,11 +90,7 @@ function signup(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([201,302,400].includes(response.status)) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {
@@ -127,11 +119,7 @@ function deleteToodle(e, id) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 200) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {
@@ -163,17 +151,13 @@ function addToodle(e) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  ([200,400].includes(response.status)) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {
             setError(data.error);
         } else {
-            data = data.payload;
+            data = data.toodle;
             resetForm(form);
             let cookie = getCookie("csrf");
             let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
@@ -205,17 +189,13 @@ function updateToodle(e, id) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 201) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {
             setError(data.error);
         } else {
-            data = data.payload;
+            data = data.toodle;
             $(t).closest( "li" ).find(".title").text(data.title);
             $(t).closest( "li" ).find("input[name=title]").val(data.title)
             $(t).closest( "li" ).find("input[name=content]").val(data.content)
@@ -239,11 +219,7 @@ function completeToodle(e, id) {
     body: JSON.stringify(formData),
     })
     .then(response => { 
-        if  (response.status == 201) {
-            return response.json();
-        } else {
-            handleError(response.status)
-        }
+        return response.json();
     })
     .then(data => {
         if (data.error) {

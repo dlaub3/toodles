@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,25 +14,26 @@ func getAllToodles(c *gin.Context) {
 
 func getAToodle(c *gin.Context) {
 	c.Keys["showsingle"] = true
-	id := bson.ObjectIdHex(c.Param("toodle_id"))
-	toodles := Toodles{}
-	toodle := Toodle{}
+
 	UID := c.Keys["uid"].(string)
-	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+	id := c.Param("toodle_id")
+
+	if id == "" {
+		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		log.Println("getAToodle: missing id")
 		return
 	}
 
-	for _, item := range toodles.Toodles {
-		if item.ID == id {
-			toodle.ID = item.ID
-			toodle.Title = item.Title
-			toodle.Content = item.Content
-		}
+	if success, toodle := findToodle(UID, id); success == true {
+		showAToodle(c, toodle)
+		return
 	}
 
-	showAToodle(c, toodle)
+	c.Keys["genError"] = "😨 cannot find toodle: " + id
+	c.Keys["httpStatus"] = http.StatusInternalServerError
+	log.Println("getAToodle: invalid id: " + id)
+	showAllToodles(c)
 }
 
 func createAToodle(c *gin.Context) {
@@ -39,15 +41,20 @@ func createAToodle(c *gin.Context) {
 	toodle := Toodle{}
 	toodle.ID = bson.NewObjectId()
 	UID := c.Keys["uid"].(string)
-	if err := c.Bind(&toodle); err != nil {
+
+	if err := c.ShouldBind(&toodle); err != nil {
+		c.Keys["error"] = getValidationErrorMsg(err)
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		log.Println("validation error :" + err.Error())
+		showAToodle(c, toodle)
 		return
 	}
 
-	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	update := bson.M{"$push": bson.M{"toodles": &toodle}}
-	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
-		return
+	if _, err := createToodle(UID, &toodle); err == nil {
+		c.Keys["genError"] = "😨 failed to create toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusInternalServerError
+		log.Println("createAToodle: " + err.Error())
+		log.Println("Params: UID=" + UID)
 	}
 
 	showAToodle(c, toodle)
@@ -55,20 +62,55 @@ func createAToodle(c *gin.Context) {
 
 func updateAToodle(c *gin.Context) {
 
-	id := c.Param("toodle_id")
 	toodle := Toodle{}
-	if err := c.Bind(&toodle); err != nil {
-		return
-	}
+	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
 	toodle.ID = bson.ObjectIdHex(id)
-	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
-	update := bson.M{"$set": bson.M{"toodles.$": &toodle}}
-	if err := mongo.C(collectionToodles).Update(query, update); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+
+	if id == "" {
+		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		log.Println("updateAToodle: missing id")
 		return
 	}
+
+	if err := c.ShouldBind(&toodle); err != nil {
+		c.Keys["error"] = getValidationErrorMsg(err)
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		showAToodle(c, toodle)
+		return
+	}
+
+	if err := updateToodle(UID, id, &toodle); err != nil {
+		c.Keys["genError"] = "😨 failed to update toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusInternalServerError
+		log.Println("updateAToodle: " + err.Error())
+		log.Println("Params: id=" + id + " UID=" + UID)
+	}
+
 	showAToodle(c, toodle)
+}
+
+func findToodle(UID string, id string) (bool, Toodle) {
+	success := false
+
+	toodles := Toodles{}
+	toodle := Toodle{}
+	toodle.ID = bson.ObjectIdHex(id)
+
+	if err := getToodles(UID, &toodles); err != nil {
+		log.Println("findToodle: " + err.Error())
+		log.Println("Params: id=" + id + " UID=" + UID)
+	}
+
+	for _, item := range toodles.Toodles {
+		if item.ID == toodle.ID {
+			toodle.Title = item.Title
+			toodle.Content = item.Content
+			success = true
+		}
+	}
+	return success, toodle
 }
 
 func completeAToodle(c *gin.Context) {
@@ -76,43 +118,44 @@ func completeAToodle(c *gin.Context) {
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
 
-	query := bson.M{"_id": bson.ObjectIdHex(UID), "toodles._id": bson.ObjectIdHex(id)}
-	update := bson.M{"$set": bson.M{"toodles.$.status": "complete"}}
-	if err := mongo.C(collectionToodles).Update(query, update); err == nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+	if id == "" {
+		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		log.Println("completeAToodle: missing id")
 		return
 	}
 
-	toodles := Toodles{}
-	toodle := Toodle{}
-	query = bson.M{"_id": bson.ObjectIdHex(UID)}
-	if err := mongo.C(collectionToodles).Find(query).One(&toodles); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+	if err := completeToodle(UID, id); err != nil {
+		c.Keys["genError"] = "😨 failed to update toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusInternalServerError
+		log.Println("completeAToodle: " + err.Error())
+		log.Println("Params: id=" + id + " UID=" + UID)
 		return
 	}
 
-	for _, item := range toodles.Toodles {
-		if item.ID == bson.ObjectIdHex(id) {
-			toodle.ID = item.ID
-			toodle.Status = item.Status
-			toodle.Title = item.Title
-			toodle.Content = item.Content
-		}
-	}
-
-	showAToodle(c, toodle)
+	showAllToodles(c)
 }
 
 func deleteAToodle(c *gin.Context) {
 
 	id := c.Param("toodle_id")
 	UID := c.Keys["uid"].(string)
-	query := bson.M{"_id": bson.ObjectIdHex(UID)}
-	update := bson.M{"$pull": bson.M{"toodles": bson.M{"_id": bson.ObjectIdHex(id)}}}
-	if _, err := mongo.C(collectionToodles).Upsert(query, update); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+
+	if id == "" {
+		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		log.Println("updateAToodle: missing id")
 		return
 	}
+
+	if _, err := deleteToodle(UID, id); err != nil {
+		c.Keys["genError"] = "😨 failed to delete toodle. Please try again."
+		c.Keys["httpStatus"] = http.StatusInternalServerError
+		log.Println("deleteAToodle: " + err.Error())
+		log.Println("Params: id=" + id + " UID=" + UID)
+		return
+	}
+
 	showAllToodles(c)
 }
 
@@ -130,15 +173,20 @@ func updateOrDeleteAToodle(c *gin.Context) {
 		updateAToodle(c)
 	} else if method == "delete" {
 		deleteAToodle(c)
+	} else {
+		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		log.Println("coupdateOrDeleteAToodle: invalid HTTP method:" + method)
+		return
 	}
 }
+
 func showAToodle(c *gin.Context, toodle Toodle) {
 	contentType := c.Request.Header.Get("Content-Type")
 	showSingle := c.Keys["showsingle"]
 	if contentType == "application/json" || showSingle == true {
 		render(c, gin.H{
-			"title":   "Toodle",
-			"payload": toodle}, "toodle.html")
+			"title":  "Toodle",
+			"toodle": toodle}, "toodle.html")
 	} else {
 		showAllToodles(c)
 	}
@@ -147,10 +195,7 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
 	UID := c.Keys["uid"].(string)
-	if err := mongo.C(collectionToodles).FindId(bson.ObjectIdHex(UID)).One(&toodles); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
-		return
-	}
+	getToodles(UID, &toodles)
 
 	activeToodles := Toodles{}
 	active := 0
@@ -168,6 +213,6 @@ func showAllToodles(c *gin.Context) {
 		"active":    active,
 		"completed": completed,
 		"title":     "All your Toodles",
-		"payload":   activeToodles.Toodles,
+		"toodles":   activeToodles.Toodles,
 	}, "toodles.html")
 }

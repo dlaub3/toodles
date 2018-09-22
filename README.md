@@ -1,19 +1,22 @@
-Exploreing the Gin framework and Mgo
-
-[https://semaphoreci.com/community/tutorials/building-go-web-applications-and-microservices-using-gin](https://semaphoreci.com/community/tutorials/building-go-web-applications-and-microservices-using-gin)
+# Exploring go web development with Gin and Mgo
 
 
-## Mongo Express
+##  Setup
 
-http://localhost:8081 - enter username and password
+* `git clone https://github.com/dlaub3/toodles.git && cd toodles`
+* `govendor sync`
+* `docker-compose up -d`
+* `fresh`
 
+Visit
 
-* ` go build `
-* ` ./toodles `
+* [http://localhost:8081](Mongo-Express) `admin:password`
+* [http://localhost:8080](Toodles)
+
 
 ### Plans
 
 * Sanitize Input
-* Prevent Empty form submits 
 * Style Mobile Layout
+* Write tests
 

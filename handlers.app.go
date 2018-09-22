@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/dlaub3/toodles/crypt"
@@ -34,24 +35,31 @@ func registerNewUser(c *gin.Context) {
 	user := User{}
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
-	if err := c.Bind(&user); err != nil {
+	if err := c.ShouldBind(&user); err != nil {
+		c.Keys["error"] = getValidationErrorMsg(err)
+		c.Keys["httpStatus"] = http.StatusBadRequest
+		showSignupPage(c)
 		return
 	}
 
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
 	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err == nil {
-		c.Set("httpStatus", 400)
+		c.Keys["httpStatus"] = http.StatusBadRequest
 		errors := make(map[string]string)
 		errors["Email"] = "Please choose a different email."
-		c.Set("error", errors)
+		c.Keys["error"] = errors
 		showSignupPage(c)
 		return
 	}
 
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
 	if err := mongo.C(collectionToodlers).Insert(&user); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+		c.Keys["genError"] = "😨 failed to register account. Please try again."
+		c.Keys["httpStatus"] = http.StatusInternalServerError
+		log.Println("registerNewUser: " + err.Error())
+		log.Println("Params: UID=" + user.UID + " password=" + user.Password)
+		showSignupPage(c)
 		return
 	}
 

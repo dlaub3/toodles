@@ -315,10 +315,10 @@ function getGenErrorHTML(msg) {
 }
 
 function setError(data) {
-    console.log(data.genError)
     if(data.genError) {
         let msg = data.genError;
         $("#generalHelp").html(getGenErrorHTML(msg));
+        window.scrollTo(0, 0);
         return;
     }
     if(data.error) {

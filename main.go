@@ -37,10 +37,13 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(f)
 
 	// Set the router as the default one provided by Gin
-	r = gin.Default()
-	binding.Validator = new(defaultValidator)
-	r.Use(middlewareErrors())
+	r = gin.New()
+	r.Use(middlewareRecover())
+	r.Use(gin.Logger())
 	r.Use(middlewareCSRF())
+	r.Use(middlewareErrors())
+
+	binding.Validator = new(defaultValidator)
 
 	// Process the templates at the start so that they don't have to be loaded
 	r.LoadHTMLGlob("templates/*")

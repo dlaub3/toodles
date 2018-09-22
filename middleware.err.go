@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"sync"
 
@@ -33,6 +34,7 @@ func validationErrorToText(e validator.FieldError) string {
 	case "alphanum":
 		return fmt.Sprintf("%s must contain letters and numbers %s", e.Field(), e.Param())
 	}
+
 	return fmt.Sprintf("%s is not valid", e.Field())
 }
 
@@ -85,33 +87,40 @@ func kindOfData(data interface{}) reflect.Kind {
 func middlewareErrors() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		c.Next()
 
 		if len(c.Errors) > 0 {
 
-			template := "toodles.html"
+			template := "error.html"
 
 			for _, e := range c.Errors {
-
 				switch e.Type {
 				case gin.ErrorTypePublic:
-					render(c, gin.H{"error": e.Error()}, template)
+					if !c.Writer.Written() {
+						showErrorPage(c)
+					}
 				case gin.ErrorTypeBind:
 					errs := e.Err.(validator.ValidationErrors)
 					list := make(map[string]string)
 					for _, err := range errs {
 						list[err.Field()] = validationErrorToText(err)
 					}
-					render(c, gin.H{"error": list}, template)
-
+					if !c.Writer.Written() {
+						render(c, gin.H{"error": list}, template)
+					}
 				default:
-					// Log other errors
+					if !c.Writer.Written() {
+						showErrorPage(c)
+					}
 				}
 
 				if !c.Writer.Written() {
 					render(c, gin.H{"error": errorInternalError.Error()}, template)
 				}
+
+				log.Println("unknown error: " + e.Error())
 			}
 		}
+
+		c.Next()
 	}
 }

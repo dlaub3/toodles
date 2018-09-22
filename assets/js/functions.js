@@ -59,8 +59,8 @@ function login(e) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
-            setError(data.error);
+        if (data.error || data.genError) {
+            setError(data);
         } else {
             window.location.replace(location.origin + "/toodles");
         }
@@ -93,8 +93,8 @@ function signup(e) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
-            setError(data.error)
+        if (data.error || data.genError) {
+            setError(data)
         } else {
             $(".card-body").addClass("text-center");
             $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
@@ -122,7 +122,7 @@ function deleteToodle(e, id) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
+        if (data.error || data.genError) {
             setError(error);
         } else {
             let t = e.target;
@@ -154,8 +154,8 @@ function addToodle(e) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
-            setError(data.error);
+        if (data.error || data.genError) {
+            setError(data);
         } else {
             data = data.toodle;
             resetForm(form);
@@ -192,8 +192,8 @@ function updateToodle(e, id) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
-            setError(data.error);
+        if (data.error || data.genError) {
+            setError(data);
         } else {
             data = data.toodle;
             $(t).closest( "li" ).find(".title").text(data.title);
@@ -222,8 +222,8 @@ function completeToodle(e, id) {
         return response.json();
     })
     .then(data => {
-        if (data.error) {
-            setError(data.error);
+        if (data.error || data.genError) {
+            setError(data);
         } else {
             let toodle = $(t).closest( "li" );
             toodle.css('background', 'green')
@@ -301,10 +301,32 @@ function handleError(status) {
     }
 }
 
-function setError(err) {
-    for (let prop in err) {
-        let field =  "#" + prop.toLowerCase() + "Help";
-        $(field).text(err[prop]);
+function getGenErrorHTML(msg) {
+    return  `
+    <div class="card alert alert-dismissible" role="alert">
+        <div class="card-body text-danger">
+            <strong>Error: </strong>${msg}
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+`;
+}
+
+function setError(data) {
+    console.log(data.genError)
+    if(data.genError) {
+        let msg = data.genError;
+        $("#generalHelp").html(getGenErrorHTML(msg));
+        return;
+    }
+    if(data.error) {
+        let err = data.error
+        for (let prop in err) {
+            let field =  "#" + prop.toLowerCase() + "Help";
+            $(field).text(err[prop]);
+        }
     }
 }
 

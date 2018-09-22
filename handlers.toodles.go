@@ -50,7 +50,7 @@ func createAToodle(c *gin.Context) {
 		return
 	}
 
-	if _, err := createToodle(UID, &toodle); err == nil {
+	if _, err := createToodle(UID, &toodle); err != nil {
 		c.Keys["genError"] = "😨 failed to create toodle. Please try again."
 		c.Keys["httpStatus"] = http.StatusInternalServerError
 		log.Println("createAToodle: " + err.Error())

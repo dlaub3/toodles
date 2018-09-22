@@ -48,11 +48,6 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 				showErrorPage(c)
 				return false
 			}
-			csrfToken, err := c.Request.Cookie("csrf")
-			if err != nil {
-				csrfToken, err = csrf(c)
-			}
-			c.Set("csrftoken", csrfToken.Value)
 			c.Set("uid", user.UID)
 			c.Set("error", "")
 			return true

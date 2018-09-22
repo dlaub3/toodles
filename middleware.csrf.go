@@ -9,13 +9,20 @@ import (
 func middlewareCSRF() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		c.Next()
+
+		csrfToken, err := c.Request.Cookie("csrf")
+		if err != nil {
+			csrfToken, err = csrf(c)
+		}
+		c.Set("csrftoken", csrfToken.Value)
 
 		if c.Request.Method != "GET" {
-			validRequest := isCSRFTokenValid(c)
-			if !validRequest {
+			validCsrf := isCSRFTokenValid(c)
+			if !validCsrf {
 				c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
 			}
 		}
+
+		c.Next()
 	}
 }

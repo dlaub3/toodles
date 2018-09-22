@@ -12,6 +12,7 @@
         <div class="card">
             <div class="card-body">
                 <form id="signup" action="/signup" method="post">
+                    <input name="csrf" type="hidden" value="{{.csrfToken}}" >
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" required>

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	mgo "gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 var mongo *mgo.Database

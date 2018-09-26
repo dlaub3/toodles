@@ -13,7 +13,26 @@ var r *gin.Engine
 var config Config
 
 func main() {
+	initConfig()
 
+	r = gin.New()
+	r.Use(middlewareRecover())
+	r.Use(gin.Logger())
+	r.Use(middlewareCSRF())
+	r.Use(middlewareErrors())
+
+	binding.Validator = new(defaultValidator)
+
+	// Process the templates at the start so that they don't have to be loaded
+	r.LoadHTMLGlob("templates/*")
+	r.Static("/assets", "./assets")
+
+	initializeRoutes()
+	dbConnect()
+	r.Run()
+}
+
+func initConfig() {
 	config = Config{}
 	config.Read()
 	config.LogPath = config.LogPath + "/gin/"
@@ -35,21 +54,4 @@ func main() {
 		log.Fatal(err)
 	}
 	gin.DefaultWriter = io.MultiWriter(f)
-
-	// Set the router as the default one provided by Gin
-	r = gin.New()
-	r.Use(middlewareRecover())
-	r.Use(gin.Logger())
-	r.Use(middlewareCSRF())
-	r.Use(middlewareErrors())
-
-	binding.Validator = new(defaultValidator)
-
-	// Process the templates at the start so that they don't have to be loaded
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/assets", "./assets")
-
-	initializeRoutes()
-	dbConnect()
-	r.Run()
 }

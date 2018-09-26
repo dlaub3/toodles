@@ -36,8 +36,8 @@ func registerNewUser(c *gin.Context) {
 	user.ID = bson.NewObjectId()
 	user.UID = user.ID.Hex()
 	if err := c.ShouldBind(&user); err != nil {
-		c.Keys["error"] = getValidationErrorMsg(err)
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("error", getValidationErrorMsg(err))
+		c.Set("httpStatus", http.StatusBadRequest)
 		showSignupPage(c)
 		return
 	}
@@ -45,18 +45,18 @@ func registerNewUser(c *gin.Context) {
 	query := bson.M{"email": user.Email}
 	existingUser := User{}
 	if err := mongo.C(collectionToodlers).Find(query).One(&existingUser); err == nil {
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("httpStatus", http.StatusBadRequest)
 		errors := make(map[string]string)
 		errors["Email"] = "Please choose a different email."
-		c.Keys["error"] = errors
+		c.Set("error", errors)
 		showSignupPage(c)
 		return
 	}
 
 	user.Password, _ = crypt.HashPassword(user.Password, 32)
 	if err := mongo.C(collectionToodlers).Insert(&user); err != nil {
-		c.Keys["genError"] = "😨 failed to register account. Please try again."
-		c.Keys["httpStatus"] = http.StatusInternalServerError
+		c.Set("genError", "😨 failed to register account. Please try again.")
+		c.Set("httpStatus", http.StatusInternalServerError)
 		log.Println("registerNewUser: " + err.Error())
 		log.Println("Params: UID=" + user.UID + " password=" + user.Password)
 		showSignupPage(c)
@@ -67,11 +67,11 @@ func registerNewUser(c *gin.Context) {
 	if contentType == "application/json" {
 		c.JSON(http.StatusCreated, gin.H{})
 	} else {
-		c.Redirect(302, "/login")
+		c.Redirect(http.StatusFound, "/login")
 	}
 }
 
 func logout(c *gin.Context) {
 	invalidateCookies(c)
-	c.Redirect(302, "/")
+	c.Redirect(http.StatusFound, "/")
 }

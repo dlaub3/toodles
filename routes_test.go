@@ -6,20 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/stretchr/testify/assert"
 	gofight "gopkg.in/appleboy/gofight.v2"
 )
 
 func init() {
-	r = gin.New()
 	initConfig()
-	initializeRoutes()
-	dbConnect()
-	binding.Validator = new(defaultValidator)
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/assets", "./assets")
+	initDB()
+	initRoutes()
 }
 
 func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
@@ -47,6 +41,11 @@ func TestSignupRequresEmail(t *testing.T) {
 		SetForm(gofight.H{
 			"email":    "",
 			"password": "testing123",
+			"csrf":     "aalkj3035555hwwe002jl21",
+		}).
+		SetHeader(gofight.H{
+			"Accept": "text/html",
+			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			data := []byte(f.Body.String())
@@ -63,6 +62,11 @@ func TestSignupRequresPassword(t *testing.T) {
 		SetForm(gofight.H{
 			"email":    "test@example.com",
 			"password": "",
+			"csrf":     "aalkj3035555hwwe002jl21",
+		}).
+		SetHeader(gofight.H{
+			"Accept": "text/html",
+			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			data := []byte(f.Body.String())
@@ -79,9 +83,11 @@ func TestLoginFailure(t *testing.T) {
 		SetForm(gofight.H{
 			"username": "admin@example.com",
 			"password": "testing123",
+			"csrf":     "aalkj3035555hwwe002jl21",
 		}).
 		SetHeader(gofight.H{
 			"Accept": "text/html",
+			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			data := []byte(f.Body.String())
@@ -98,9 +104,11 @@ func TestLoginRedirectOnSuccess(t *testing.T) {
 		SetForm(gofight.H{
 			"username": "admin@example.com",
 			"password": "password",
+			"csrf":     "aalkj3035555hwwe002jl21",
 		}).
 		SetHeader(gofight.H{
 			"Accept": "text/html",
+			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			assert.Equal(t, http.StatusFound, f.Code)

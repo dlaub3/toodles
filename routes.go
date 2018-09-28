@@ -4,7 +4,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeRoutes() {
+func initRoutes() {
+
+	r = gin.New()
+	// r.Use(gin.Recovery())
+	r.Use(gin.Logger())
+	r.Use(middlewareCSRF())
+	r.Use(middlewareErrors())
+	r.Use(middlewareRecover())
+
+	r.LoadHTMLGlob("templates/*")
+	r.Static("/assets", "./assets")
 
 	authMiddleware := jwtMiddleware()
 
@@ -25,6 +35,7 @@ func initializeRoutes() {
 
 	auth := r.Group("/")
 	auth.Use(authMiddleware.MiddlewareFunc())
+	auth.GET("refresh_token", authMiddleware.RefreshHandler)
 
 	auth.GET("/toodles", getAllToodles)
 	auth.POST("/toodles", createAToodle)
@@ -37,6 +48,5 @@ func initializeRoutes() {
 	auth.POST("/toodles/:toodle_id", updateOrDeleteAToodle)
 	auth.POST("/toodles/:toodle_id/complete", completeAToodle)
 
-	auth.GET("refresh_token", authMiddleware.RefreshHandler)
-
+	r.Run()
 }

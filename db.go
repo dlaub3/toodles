@@ -15,7 +15,7 @@ const (
 	collectionToodlers = "toodlers"
 )
 
-func dbConnect() {
+func initDB() {
 
 	type connection struct {
 		Server   string

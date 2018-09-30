@@ -20,19 +20,21 @@ type csrfToken struct {
 // isCSRFTokenValid checks the request for a valid CSRF token
 func isCSRFTokenValid(c *gin.Context) bool {
 	var err error
-	csrfToken := csrfToken{}
+	formValue := csrfToken{}
 	// save the request body
 	body, err := ioutil.ReadAll(c.Request.Body)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	err = c.Bind(&csrfToken)
+	err = c.Bind(&formValue)
 	// restore the request body
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 	if err != nil {
 		log.Panic(err)
 	}
 
-	return csrfToken.CsrfToken == c.Keys["csrftoken"].(string)
+	csrfCookie, _ := c.Get("csrftoken")
+
+	return formValue.CsrfToken == csrfCookie.(string)
 }
 
 // csrf sets a csrf token in a cookie

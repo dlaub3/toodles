@@ -13,26 +13,26 @@ func getAllToodles(c *gin.Context) {
 }
 
 func getAToodle(c *gin.Context) {
-	c.Keys["showsingle"] = true
+	c.Set("showsingle", true)
 
-	UID := c.Keys["uid"].(string)
+	UID, _ := c.Get("uid")
 	id := c.Param("toodle_id")
 
 	if id == "" {
-		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("genError", "😨 cannot find toodle. Please try again.")
+		c.Set("httpStatus", http.StatusBadRequest)
 		log.Println("getAToodle: missing id")
 		showAllToodles(c)
 		return
 	}
 
-	if success, toodle := findToodle(UID, id); success == true {
+	if success, toodle := findToodle(UID.(string), id); success == true {
 		showAToodle(c, toodle)
 		return
 	}
 
-	c.Keys["genError"] = "😨 cannot find toodle: " + id
-	c.Keys["httpStatus"] = http.StatusInternalServerError
+	c.Set("genError", "😨 cannot find toodle: "+id)
+	c.Set("httpStatus", http.StatusInternalServerError)
 	log.Println("getAToodle: invalid id: " + id)
 	showAllToodles(c)
 }
@@ -41,21 +41,21 @@ func createAToodle(c *gin.Context) {
 
 	toodle := Toodle{}
 	toodle.ID = bson.NewObjectId()
-	UID := c.Keys["uid"].(string)
+	UID, _ := c.Get("uid")
 
 	if err := c.ShouldBind(&toodle); err != nil {
-		c.Keys["error"] = getValidationErrorMsg(err)
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("error", getValidationErrorMsg(err))
+		c.Set("httpStatus", http.StatusBadRequest)
 		log.Println("validation error :" + err.Error())
 		showAToodle(c, toodle)
 		return
 	}
 
-	if _, err := createToodle(UID, &toodle); err != nil {
-		c.Keys["genError"] = "😨 failed to create toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusInternalServerError
+	if _, err := createToodle(UID.(string), &toodle); err != nil {
+		c.Set("genError", "😨 failed to create toodle. Please try again.")
+		c.Set("httpStatus", http.StatusInternalServerError)
 		log.Println("createAToodle: " + err.Error())
-		log.Println("Params: UID=" + UID)
+		log.Println("Params: UID=" + UID.(string))
 	}
 
 	showAToodle(c, toodle)
@@ -65,29 +65,29 @@ func updateAToodle(c *gin.Context) {
 
 	toodle := Toodle{}
 	id := c.Param("toodle_id")
-	UID := c.Keys["uid"].(string)
+	UID, _ := c.Get("uid")
 	toodle.ID = bson.ObjectIdHex(id)
 
 	if id == "" {
-		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("genError", "😨 cannot find toodle. Please try again.")
+		c.Set("httpStatus", http.StatusBadRequest)
 		log.Println("updateAToodle: missing id")
 		showAToodle(c, toodle)
 		return
 	}
 
 	if err := c.ShouldBind(&toodle); err != nil {
-		c.Keys["error"] = getValidationErrorMsg(err)
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("error", getValidationErrorMsg(err))
+		c.Set("httpStatus", http.StatusBadRequest)
 		showAToodle(c, toodle)
 		return
 	}
 
-	if err := updateToodle(UID, id, &toodle); err != nil {
-		c.Keys["genError"] = "😨 failed to update toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusInternalServerError
+	if err := updateToodle(UID.(string), id, &toodle); err != nil {
+		c.Set("genError", "😨 failed to update toodle. Please try again.")
+		c.Set("httpStatus", http.StatusInternalServerError)
 		log.Println("updateAToodle: " + err.Error())
-		log.Println("Params: id=" + id + " UID=" + UID)
+		log.Println("Params: id=" + id + " UID=" + UID.(string))
 	}
 
 	showAToodle(c, toodle)
@@ -118,21 +118,21 @@ func findToodle(UID string, id string) (bool, Toodle) {
 func completeAToodle(c *gin.Context) {
 
 	id := c.Param("toodle_id")
-	UID := c.Keys["uid"].(string)
+	UID, _ := c.Get("uid")
 
 	if id == "" {
-		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("genError", "😨 cannot find toodle. Please try again.")
+		c.Set("httpStatus", http.StatusBadRequest)
 		log.Println("completeAToodle: missing id")
 		showAllToodles(c)
 		return
 	}
 
-	if err := completeToodle(UID, id); err != nil {
-		c.Keys["genError"] = "😨 failed to update toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusInternalServerError
+	if err := completeToodle(UID.(string), id); err != nil {
+		c.Set("genError", "😨 failed to update toodle. Please try again.")
+		c.Set("httpStatus", http.StatusInternalServerError)
 		log.Println("completeAToodle: " + err.Error())
-		log.Println("Params: id=" + id + " UID=" + UID)
+		log.Println("Params: id=" + id + " UID=" + UID.(string))
 	}
 
 	showAllToodles(c)
@@ -141,21 +141,21 @@ func completeAToodle(c *gin.Context) {
 func deleteAToodle(c *gin.Context) {
 
 	id := c.Param("toodle_id")
-	UID := c.Keys["uid"].(string)
+	UID, _ := c.Get("uid")
 
 	if id == "" {
-		c.Keys["genError"] = "😨 cannot find toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusBadRequest
+		c.Set("genError", "😨 cannot find toodle. Please try again.")
+		c.Set("httpStatus", http.StatusBadRequest)
 		log.Println("updateAToodle: missing id")
 		showAllToodles(c)
 		return
 	}
 
-	if _, err := deleteToodle(UID, id); err != nil {
-		c.Keys["genError"] = "😨 failed to delete toodle. Please try again."
-		c.Keys["httpStatus"] = http.StatusInternalServerError
+	if _, err := deleteToodle(UID.(string), id); err != nil {
+		c.Set("genError", "😨 failed to delete toodle. Please try again.")
+		c.Set("httpStatus", http.StatusInternalServerError)
 		log.Println("deleteAToodle: " + err.Error())
-		log.Println("Params: id=" + id + " UID=" + UID)
+		log.Println("Params: id=" + id + " UID=" + UID.(string))
 	}
 
 	showAllToodles(c)
@@ -171,7 +171,7 @@ func updateOrDeleteAToodle(c *gin.Context) {
 	method := c.PostForm("method")
 
 	if method == "put" {
-		c.Keys["showsingle"] = true
+		c.Set("showsingle", true)
 		updateAToodle(c)
 	} else if method == "delete" {
 		deleteAToodle(c)
@@ -184,8 +184,8 @@ func updateOrDeleteAToodle(c *gin.Context) {
 
 func showAToodle(c *gin.Context, toodle Toodle) {
 	contentType := c.Request.Header.Get("Content-Type")
-	showSingle := c.Keys["showsingle"]
-	if contentType == "application/json" || showSingle == true {
+	showSingle, _ := c.Get("showsingle")
+	if contentType == "application/json" || showSingle.(bool) == true {
 		render(c, gin.H{
 			"title":  "Toodle",
 			"toodle": toodle}, "toodle.html")
@@ -196,8 +196,8 @@ func showAToodle(c *gin.Context, toodle Toodle) {
 
 func showAllToodles(c *gin.Context) {
 	toodles := Toodles{}
-	UID := c.Keys["uid"].(string)
-	getToodles(UID, &toodles)
+	UID, _ := c.Get("uid")
+	getToodles(UID.(string), &toodles)
 
 	activeToodles := Toodles{}
 	active := 0

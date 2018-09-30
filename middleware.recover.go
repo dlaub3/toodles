@@ -13,7 +13,7 @@ func middlewareRecover() gin.HandlerFunc {
 		defer func() {
 			// c.Writer.Status() == 500
 			if err := recover(); err != nil {
-				c.Keys["genError"] = "😑 oh snap! Please try again."
+				c.Set("genError", "😑 oh snap! Please try again.")
 				log.Printf("[Recovery] %s panic recovered.:\n%s\n", time.Now(), err)
 				showErrorPage(c)
 			}

@@ -13,8 +13,8 @@ func render(c *gin.Context, data gin.H, templateName string) {
 		data["error"] = errors
 	}
 
-	data["genError"] = c.Keys["genError"]
-	data["csrfToken"] = c.Keys["csrftoken"]
+	data["genError"], _ = c.Get("genError")
+	data["csrfToken"], _ = c.Get("csrftoken")
 
 	cookie, _ := c.Request.Cookie("token")
 	if cookie != nil {

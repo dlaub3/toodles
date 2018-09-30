@@ -11,25 +11,25 @@ import (
 
 func getRecoverRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	r = gin.New()
-	r.Use(middlewareRecover())
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/assets", "./assets")
-	r.GET("/ping", func(c *gin.Context) {
+	g := gin.New()
+	g.Use(middlewareRecover())
+	g.LoadHTMLGlob("templates/*")
+	g.Static("/assets", "./assets")
+	g.GET("/ping", func(c *gin.Context) {
 		panic("Something went wrong.")
 	})
-	return r
+	return g
 }
 
 func TestMiddlewareRecover(t *testing.T) {
 	f := gofight.New()
-	r := getRecoverRouter()
+	g := getRecoverRouter()
 
 	f.GET("/ping").
 		SetHeader(gofight.H{
 			"Accept": "text/html",
 		}).
-		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+		Run(g, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			assert.Contains(t, f.Body.String(), "😑 oh snap! Please try again.")
 			assert.Equal(t, f.Code, http.StatusInternalServerError)
 		})

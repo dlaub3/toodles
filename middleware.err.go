@@ -87,6 +87,7 @@ func kindOfData(data interface{}) reflect.Kind {
 func middlewareErrors() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		c.Next()
 
 		if len(c.Errors) > 0 {
 
@@ -95,32 +96,19 @@ func middlewareErrors() gin.HandlerFunc {
 			for _, e := range c.Errors {
 				switch e.Type {
 				case gin.ErrorTypePublic:
-					if !c.Writer.Written() {
-						showErrorPage(c)
-					}
+					showErrorPage(c)
 				case gin.ErrorTypeBind:
 					errs := e.Err.(validator.ValidationErrors)
 					list := make(map[string]string)
 					for _, err := range errs {
 						list[err.Field()] = validationErrorToText(err)
 					}
-					if !c.Writer.Written() {
-						render(c, gin.H{"error": list}, template)
-					}
+					render(c, gin.H{"error": list}, template)
 				default:
-					if !c.Writer.Written() {
-						showErrorPage(c)
-					}
+					showErrorPage(c)
+					log.Println("unknown error: " + e.Error())
 				}
-
-				if !c.Writer.Written() {
-					render(c, gin.H{"error": errorInternalError.Error()}, template)
-				}
-
-				log.Println("unknown error: " + e.Error())
 			}
 		}
-
-		c.Next()
 	}
 }

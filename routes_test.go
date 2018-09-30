@@ -1,9 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,22 +14,34 @@ func init() {
 	initRoutes()
 }
 
-func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
+func TestShowHomePage(t *testing.T) {
+	f := gofight.New()
+
+	f.GET("/").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Contains(t, f.Body.String(), "Toodles, stay organized. Get stuff done!")
+			assert.Equal(t, http.StatusOK, f.Code)
+		})
 }
 
-func TestPing(t *testing.T) {
-	w := performRequest(r, "GET", "/")
-	assert.Equal(t, http.StatusOK, w.Code)
+func TestShowSignupPage(t *testing.T) {
+	f := gofight.New()
+
+	f.GET("/signup").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Contains(t, f.Body.String(), "Signup to start toodling today.")
+			assert.Equal(t, http.StatusOK, f.Code)
+		})
 }
 
-func TestIndexPage(t *testing.T) {
-	w := performRequest(r, "GET", "/")
-	p, _ := ioutil.ReadAll(w.Body)
-	assert.Contains(t, string(p), "Toodles, stay organized. Get stuff done!")
+func TestShowLoginPage(t *testing.T) {
+	f := gofight.New()
+
+	f.GET("/login").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Contains(t, f.Body.String(), "Login to access your toodles.")
+			assert.Equal(t, http.StatusOK, f.Code)
+		})
 }
 
 func TestSignupRequresEmail(t *testing.T) {
@@ -48,9 +58,7 @@ func TestSignupRequresEmail(t *testing.T) {
 			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
-			data := []byte(f.Body.String())
-
-			assert.Contains(t, string(data), "Email is required")
+			assert.Contains(t, f.Body.String(), "Email is required")
 			assert.Equal(t, http.StatusBadRequest, f.Code)
 		})
 }
@@ -69,9 +77,7 @@ func TestSignupRequresPassword(t *testing.T) {
 			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
-			data := []byte(f.Body.String())
-
-			assert.Contains(t, string(data), "Password is required")
+			assert.Contains(t, f.Body.String(), "Password is required")
 			assert.Equal(t, http.StatusBadRequest, f.Code)
 		})
 }
@@ -90,9 +96,7 @@ func TestLoginFailure(t *testing.T) {
 			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
-			data := []byte(f.Body.String())
-
-			assert.Contains(t, string(data), "Your username and password do not match.")
+			assert.Contains(t, f.Body.String(), "Your username and password do not match.")
 			assert.Equal(t, http.StatusUnauthorized, f.Code)
 		})
 }
@@ -111,6 +115,22 @@ func TestLoginRedirectOnSuccess(t *testing.T) {
 			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusFound, f.Code)
+		})
+}
+
+func TestLogout(t *testing.T) {
+	f := gofight.New()
+
+	f.GET("/logout").
+		SetHeader(gofight.H{
+			"Accept": "text/html",
+			"Cookie": "csrf=aalkj3035555hwwe002jl21;",
+		}).
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			cookies := f.HeaderMap["Set-Cookie"]
+			assert.Contains(t, cookies[1], "token=;")
+			assert.Contains(t, cookies[0], "csrf=;")
 			assert.Equal(t, http.StatusFound, f.Code)
 		})
 }

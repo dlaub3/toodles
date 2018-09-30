@@ -12,12 +12,20 @@ import (
 func getRouter() *gin.Engine {
 	// gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/", csrfTokenTest)
+	r.POST("/isCSRFTokenValid", isCSRFTokenValidTest)
+	r.GET("/csrf", csrfTest)
 	r.Run()
 	return r
 }
 
-func csrfTokenTest(c *gin.Context) {
+func csrfTest(c *gin.Context) {
+	cookie, _ := csrf(c)
+	c.JSON(http.StatusOK, gin.H{
+		"cookie": cookie,
+	})
+}
+
+func isCSRFTokenValidTest(c *gin.Context) {
 	csrfToken, _ := c.Request.Cookie("csrf")
 	c.Set("csrftoken", csrfToken.Value)
 	validCSRF := isCSRFTokenValid(c)
@@ -37,7 +45,7 @@ func TestIsCSRFTokenValidSuccess(t *testing.T) {
 	r := getRouter()
 	f := gofight.New()
 
-	f.POST("/").
+	f.POST("/isCSRFTokenValid").
 		SetForm(gofight.H{
 			"csrf": "aalkj3035555hwwe002jl21",
 		}).
@@ -53,7 +61,7 @@ func TestIsCSRFTokenValidFailure(t *testing.T) {
 	r := getRouter()
 	f := gofight.New()
 
-	f.POST("/").
+	f.POST("/isCSRFTokenValid").
 		SetForm(gofight.H{
 			"csrf": "10aalkj3035555hwwe002jl21",
 		}).
@@ -62,5 +70,16 @@ func TestIsCSRFTokenValidFailure(t *testing.T) {
 		}).
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			assert.Contains(t, f.Body.String(), "failure")
+		})
+}
+
+func TestCsrfSetInCookie(t *testing.T) {
+	r := getRouter()
+	f := gofight.New()
+
+	f.GET("/csrf").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			cookies := f.HeaderMap["Set-Cookie"]
+			assert.Contains(t, cookies[0], "csrf=")
 		})
 }

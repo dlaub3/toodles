@@ -14,8 +14,26 @@ func getRouter() *gin.Engine {
 	r := gin.New()
 	r.POST("/isCSRFTokenValid", isCSRFTokenValidTest)
 	r.GET("/csrf", csrfTest)
+	r.GET("/invalidateCSRF", invalidateCSRFTest)
+	r.GET("/invalidateJWT", invalidateJWTTest)
+	r.GET("/invalidateCookies", invalidateCookiesTest)
 	r.Run()
 	return r
+}
+
+func invalidateCSRFTest(c *gin.Context) {
+	invalidateCSRF(c)
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func invalidateJWTTest(c *gin.Context) {
+	invalidateJWT(c)
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func invalidateCookiesTest(c *gin.Context) {
+	invalidateCookies(c)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func csrfTest(c *gin.Context) {
@@ -81,5 +99,39 @@ func TestCsrfSetInCookie(t *testing.T) {
 		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			cookies := f.HeaderMap["Set-Cookie"]
 			assert.Contains(t, cookies[0], "csrf=")
+		})
+}
+
+func TestInvalidateCSRF(t *testing.T) {
+	r := getRouter()
+	f := gofight.New()
+
+	f.GET("/invalidateCSRF").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			cookies := f.HeaderMap["Set-Cookie"]
+			assert.Contains(t, cookies[0], "csrf=;")
+		})
+}
+
+func TestInvalidateJWT(t *testing.T) {
+	r := getRouter()
+	f := gofight.New()
+
+	f.GET("/invalidateJWT").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			cookies := f.HeaderMap["Set-Cookie"]
+			assert.Contains(t, cookies[0], "token=;")
+		})
+}
+
+func TestInvalidateCookies(t *testing.T) {
+	r := getRouter()
+	f := gofight.New()
+
+	f.GET("/invalidateCookies").
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			cookies := f.HeaderMap["Set-Cookie"]
+			assert.Contains(t, cookies[0], "csrf=;")
+			assert.Contains(t, cookies[1], "token=;")
 		})
 }

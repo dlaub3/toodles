@@ -9,24 +9,25 @@ import (
 	gofight "gopkg.in/appleboy/gofight.v2"
 )
 
-var g *gin.Engine
-
-func init() {
-	g = gin.New()
-	g.GET("/ping", func(c *gin.Context) {
+func getCSRFRouter() *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	r = gin.New()
+	r.GET("/ping", func(c *gin.Context) {
 		c.String(200, "pong")
 	})
-	g.Use(middlewareCSRF())
+	r.Use(middlewareCSRF())
+	return r
 }
 
-func TestCSRFTokenIsSetInCookie(t *testing.T) {
+func TestMiddlewareCSRF(t *testing.T) {
+	r := getCSRFRouter()
 	f := gofight.New()
 
 	f.POST("/ping").
 		SetHeader(gofight.H{
 			"Accept": "text/html",
 		}).
-		Run(g, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
+		Run(r, func(f gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			cookies := f.HeaderMap["Set-Cookie"]
 			assert.Contains(t, cookies[0], "csrf=")
 		})

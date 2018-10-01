@@ -1,0 +1,21 @@
+
+{{ template "header.html" .}}
+
+<h1 class="cover-heading jumbotron">{{ .title }}</h1>
+
+<div class="col-md-6 offset-md-3 text-left">
+<div class="card w-100">
+    <div class="card-body">
+      <h5 class="card-title">{{.user.Email}}</h5>
+        <div class="card card-body">
+            <form action="/users/{{.user.ID.Hex}}" method="post">
+                <input name="csrf" type="hidden" value="{{.csrfToken}}" >
+                <input type="hidden" name="method" value="delete">
+                <button type="submit" class="btn btn-danger" onClick="deleteuser(event, {{.user.ID.Hex}})">Delete Account</button>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>  
+
+{{ template "footer.html" .}}

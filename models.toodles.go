@@ -46,3 +46,8 @@ func deleteToodle(UID string, id string) (*mgo.ChangeInfo, error) {
 	update := bson.M{"$pull": bson.M{"toodles": bson.M{"_id": bson.ObjectIdHex(id)}}}
 	return mongo.C(collectionToodles).Upsert(query, update)
 }
+
+func deleteAllToodles(UID string) error {
+	query := bson.M{"_id": bson.ObjectIdHex(UID)}
+	return mongo.C(collectionToodles).Remove(query)
+}

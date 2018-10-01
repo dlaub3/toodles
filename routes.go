@@ -8,11 +8,11 @@ func initRoutes() {
 
 	// gin.SetMode(gin.ReleaseMode)
 	r = gin.New()
-	// r.Use(gin.Recovery())
-	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+	// r.Use(gin.Logger())
 	r.Use(middlewareCSRF())
 	r.Use(middlewareErrors())
-	r.Use(middlewareRecover())
+	// r.Use(middlewareRecover())
 
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
@@ -44,6 +44,10 @@ func initRoutes() {
 	auth.PUT("/toodles/:toodle_id", updateAToodle)
 	auth.DELETE("/toodles/:toodle_id", deleteAToodle)
 	auth.PUT("/toodles/:toodle_id/complete", completeAToodle)
+
+	auth.GET("/account", getAUser)
+	auth.DELETE("/users/:user_id", deleteAUser)
+	auth.POST("/users/:user_id", updateOrDeleteAUser)
 
 	//Routes specifically for form submitalls and not AJAX
 	auth.POST("/toodles/:toodle_id", updateOrDeleteAToodle)

@@ -13,7 +13,11 @@ func getAUser(c *gin.Context) {
 	user := User{}
 	UID, _ := c.Get("uid")
 
-	getUser(UID.(string), &user)
+	if err := getUserByID(UID.(string), &user); err != nil {
+		c.Set("genError", "😨 error getting account info")
+		c.Set("httpStatus", http.StatusInternalServerError)
+		log.Println("getUserByID: " + UID.(string))
+	}
 
 	render(c, gin.H{
 		"user":  user,
@@ -23,13 +27,19 @@ func getAUser(c *gin.Context) {
 
 func deleteAUser(c *gin.Context) {
 	UID, _ := c.Get("uid")
-	deleteUser(UID.(string))
-	deleteAllToodles(UID.(string))
+	if err := deleteUser(UID.(string)); err != nil {
+		c.Set("genError", "😨 error deleting account: "+UID.(string))
+		c.Set("httpStatus", http.StatusInternalServerError)
+		log.Println("deleteUser: " + UID.(string))
+	}
+
+	if err := deleteAllToodles(UID.(string)); err != nil {
+		c.Set("genError", "😨 error deleting toodles: "+UID.(string))
+		c.Set("httpStatus", http.StatusInternalServerError)
+		log.Println("deleteAllToodles: " + UID.(string))
+	}
+
 	logout(c)
-}
-
-func updateAUser(c *gin.Context) {
-
 }
 
 func updateOrDeleteAUser(c *gin.Context) {

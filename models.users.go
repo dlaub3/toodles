@@ -12,22 +12,16 @@ type User struct {
 	UID      string        `bson:"uid"`
 }
 
-func createUser(user User) error {
-	return mongo.C(collectionToodlers).Insert(&user)
+func getUserByID(UID string, user *User) error {
+	query := bson.M{"uid": UID}
+	return mongo.C(collectionToodlers).Find(query).One(&user)
 }
 
-func updateUser(UID string, user User) error {
-	query := bson.M{"uid": UID}
-	update := bson.M{"$set": &user}
-	return mongo.C(collectionToodlers).Update(query, update)
+func createUser(user User) error {
+	return mongo.C(collectionToodlers).Insert(&user)
 }
 
 func deleteUser(UID string) error {
 	query := bson.M{"uid": UID}
 	return mongo.C(collectionToodlers).Remove(query)
-}
-
-func getUser(UID string, user *User) error {
-	query := bson.M{"uid": UID}
-	return mongo.C(collectionToodlers).Find(query).One(&user)
 }

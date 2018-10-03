@@ -8,7 +8,7 @@
     <div class="card-body">
       <h5 class="card-title">{{.user.Email}}</h5>
         <div class="card card-body">
-            <form action="/users/{{.user.ID.Hex}}" method="post">
+            <form action="/account" method="post">
                 <input name="csrf" type="hidden" value="{{.csrfToken}}" >
                 <input type="hidden" name="method" value="delete">
                 <button type="submit" class="btn btn-danger" onClick="deleteuser(event, {{.user.ID.Hex}})">Delete Account</button>

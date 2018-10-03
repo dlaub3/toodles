@@ -25,7 +25,7 @@ func getAUser(c *gin.Context) {
 	}, "user.html")
 }
 
-func deleteAUser(c *gin.Context) {
+func deleteAccount(c *gin.Context) {
 	UID, _ := c.Get("uid")
 	if err := deleteUser(UID.(string)); err != nil {
 		c.Set("genError", "😨 error deleting account: "+UID.(string))
@@ -48,7 +48,7 @@ func updateOrDeleteAUser(c *gin.Context) {
 	if method == "put" {
 
 	} else if method == "delete" {
-		deleteAUser(c)
+		deleteAccount(c)
 	}
 }
 

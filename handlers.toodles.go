@@ -184,7 +184,11 @@ func updateOrDeleteAToodle(c *gin.Context) {
 
 func showAToodle(c *gin.Context, toodle Toodle) {
 	contentType := c.Request.Header.Get("Content-Type")
-	showSingle, _ := c.Get("showsingle")
+	showSingle, exists := c.Get("showsingle")
+	if exists == false {
+		showSingle = false
+	}
+
 	if contentType == "application/json" || showSingle.(bool) == true {
 		render(c, gin.H{
 			"title":  "Toodle",

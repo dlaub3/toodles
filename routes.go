@@ -46,8 +46,8 @@ func initRoutes() {
 	auth.PUT("/toodles/:toodle_id/complete", completeAToodle)
 
 	auth.GET("/account", getAUser)
-	auth.DELETE("/users/:user_id", deleteAUser)
-	auth.POST("/users/:user_id", updateOrDeleteAUser)
+	auth.DELETE("/account", deleteAccount)
+	auth.POST("/account", updateOrDeleteAUser)
 
 	//Routes specifically for form submitalls and not AJAX
 	auth.POST("/toodles/:toodle_id", updateOrDeleteAToodle)

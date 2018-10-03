@@ -13,10 +13,10 @@ func getAUser(c *gin.Context) {
 	user := User{}
 	UID, _ := c.Get("uid")
 
-	if err := getUserByID(UID.(string), &user); err != nil {
+	if err := getUserByUID(UID.(string), &user); err != nil {
 		c.Set("genError", "😨 error getting account info")
 		c.Set("httpStatus", http.StatusInternalServerError)
-		log.Println("getUserByID: " + UID.(string))
+		log.Println("getUserByUID: " + UID.(string))
 	}
 
 	render(c, gin.H{

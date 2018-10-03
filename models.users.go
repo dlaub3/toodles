@@ -12,7 +12,7 @@ type User struct {
 	UID      string        `bson:"uid"`
 }
 
-func getUserByID(UID string, user *User) error {
+func getUserByUID(UID string, user *User) error {
 	query := bson.M{"uid": UID}
 	return mongo.C(collectionToodlers).Find(query).One(&user)
 }

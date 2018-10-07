@@ -1,29 +1,77 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
-	jwt "github.com/dlaub3/gin-jwt"
+	"github.com/appleboy/gin-jwt"
 	"github.com/dlaub3/toodles/crypt"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 )
 
 func jwtMiddleware() *jwt.GinJWTMiddleware {
-
+	type login struct {
+		Username string `form:"username" json:"username" binding:"required"`
+		Password string `form:"password" json:"password" binding:"required"`
+	}
+	identityKey := "uid"
 	// the JWT middleware
 	authMiddleware := &jwt.GinJWTMiddleware{
-		SendCookie:   true,
-		SecureCookie: false,
-		SendRedirect: true,
-		RedirectURI:  "/toodles",
-		Realm:        "test zone",
-		Key:          []byte(config.SecretKey),
-		Timeout:      time.Hour,
-		MaxRefresh:   time.Hour,
-		Authenticator: func(userId string, password string, c *gin.Context) (string, bool) {
+		SigningAlgorithm: "HS256",
+		SendCookie:       true,
+		SecureCookie:     false,
+		CookieHTTPOnly:   true,
+		CookieDomain:     "localhost:8080",
+		CookieName:       "token",
+		Realm:            "test zone",
+		Key:              []byte(config.SecretKey),
+		Timeout:          time.Hour,
+		MaxRefresh:       time.Hour,
+		IdentityKey:      identityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			// process JWT JWT and map to claims
+			if v, ok := data.(*User); ok {
+				return jwt.MapClaims{
+					identityKey: v.UID,
+				}
+			}
+			return jwt.MapClaims{"error": "no claims to map"}
+		},
+		IdentityHandler: func(c *gin.Context) interface{} {
+			// extract UID from claims UID identityKey
+			claims := jwt.ExtractClaims(c)
+			return claims["uid"].(string)
+		},
+		Authorizator: func(data interface{}, c *gin.Context) bool {
+			// handle authorization for data set in IdentityHandler
+			if v, ok := data.(string); ok && v != "" {
+				return true
+			}
+			showErrorPage(c)
+			return false
+		},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			if c.Request.URL.Path == "/login" {
+				showLoginPage(c)
+			} else {
+				handleUnauthorized(c)
+			}
+		},
+		LoginResponse: func(c *gin.Context, status int, msg string, time time.Time) {
+			c.Redirect(http.StatusFound, "/toodles")
+		},
+		Authenticator: func(c *gin.Context) (interface{}, error) {
+			var loginVals login
+			if err := c.ShouldBind(&loginVals); err != nil {
+				return "", jwt.ErrMissingLoginValues
+			}
+
+			userID := loginVals.Username
+			password := loginVals.Password
+
 			user := User{}
-			err := mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user)
+			err := mongo.C(collectionToodlers).Find(bson.M{"email": userID}).One(&user)
 			csrf(c)
 
 			errors := make(map[string]string)
@@ -32,32 +80,16 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			if err != nil {
 				c.Set("httpStatus", 401)
 				c.Set("error", errors)
-				return userId, false
+				return nil, jwt.ErrFailedAuthentication
 			}
 			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
 				c.Set("httpStatus", 401)
 				c.Set("error", errors)
-				return userId, false
+				return nil, jwt.ErrFailedAuthentication
 			}
-			return userId, true
-		},
-		Authorizator: func(userId string, c *gin.Context) bool {
-			user := User{}
-			if err := mongo.C(collectionToodlers).Find(bson.M{"email": userId}).One(&user); err != nil {
-				showErrorPage(c)
-				return false
-			}
-			c.Set("uid", user.UID)
-			c.Set("error", "")
-			return true
-		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			if c.Request.URL.Path == "/login" {
-				showLoginPage(c)
-			} else {
-				handleUnauthorized(c)
-			}
+
+			return &user, nil
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
@@ -72,7 +104,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 		// TokenLookup: "header:Authorization",
 
 		// TokenHeadName is a string in the header. Default value is "Bearer"
-		TokenHeadName: "Bearer",
+		// TokenHeadName: "Bearer",
 
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,

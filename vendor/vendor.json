@@ -9,6 +9,12 @@
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
+			"checksumSHA1": "kLrKkpqZ0rGUqQJJF81toGoCosY=",
+			"path": "github.com/appleboy/gin-jwt",
+			"revision": "7e28a7a4c79817c134c7c58e656f6e498da4ce6c",
+			"revisionTime": "2018-09-30T01:05:26Z"
+		},
+		{
 			"checksumSHA1": "R3Pgya4rXRF6ac4kqwOZKKwWJwg=",
 			"path": "github.com/appleboy/gofight",
 			"revision": "2239bcbb392cd981d01f472c709306d3b9238acd",
@@ -21,10 +27,10 @@
 			"revisionTime": "2018-08-30T19:11:22Z"
 		},
 		{
-			"checksumSHA1": "zmBZ3lK/AKPYZHY8ALHfc/IpFeI=",
-			"path": "github.com/dlaub3/gin-jwt",
-			"revision": "63b02790d8f4fcf6e0e6ff60fc6efa836a955f4c",
-			"revisionTime": "2018-09-23T00:11:27Z"
+			"checksumSHA1": "blOHP3HPYU+IeV6yWCalQuuM+zE=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "3af4c746e1c248ee8491a3e0c6f7a9cd831e95f8",
+			"revisionTime": "2018-09-21T17:23:15Z"
 		},
 		{
 			"checksumSHA1": "QeKwBtN2df+j+4stw3bQJ6yO4EY=",

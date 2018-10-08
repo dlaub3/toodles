@@ -20,7 +20,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	authMiddleware := &jwt.GinJWTMiddleware{
 		SigningAlgorithm: "HS256",
 		SendCookie:       true,
-		SecureCookie:     false,
+		SecureCookie:     false, //non HTTPS dev environments
 		CookieHTTPOnly:   true,
 		CookieDomain:     "localhost:8080",
 		CookieName:       "token",
@@ -58,9 +58,6 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 				handleUnauthorized(c)
 			}
 		},
-		LoginResponse: func(c *gin.Context, status int, msg string, time time.Time) {
-			c.Redirect(http.StatusFound, "/toodles")
-		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
@@ -90,6 +87,9 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			}
 
 			return &user, nil
+		},
+		LoginResponse: func(c *gin.Context, status int, msg string, time time.Time) {
+			c.Redirect(http.StatusFound, "/toodles")
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.

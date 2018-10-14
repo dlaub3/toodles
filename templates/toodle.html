@@ -21,11 +21,11 @@
             <input type="hidden" name="method" value="put">
             <div class="form-group">
                 <input name="title" type="text" value="{{.toodle.Title}}" class="form-control" id="title" placeholder="{{.toodle.Title}}" required>
-                <small id="titleHelp" class="form-text text-danger">{{ .error.Title }}</small>
+                <small data-help="titleHelp" class="form-text text-danger">{{ .error.Title }}</small>
             </div>
             <div class="form-group">
               <textarea name="content" type="text" class="form-control" id="content" placeholder="{{.toodle.Content}}" rows="3">{{.toodle.Content}}</textarea>
-              <small id="contentHelp" class="form-text text-danger">{{ .error.Content }}</small>
+              <small data-help="contentHelp" class="form-text text-danger">{{ .error.Content }}</small>
             </div>
             <a href="/toodles" class="btn btn-dark">Back</a>
             <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.toodle.ID.Hex}} )">Update</button>
@@ -33,6 +33,6 @@
       </div>
     </div>
   </div>
-</div>  
+</div>
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

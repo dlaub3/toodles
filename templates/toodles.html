@@ -12,11 +12,11 @@
     <input name="csrf" type="hidden" value="{{.csrfToken}}" >
     <div class="form-group">
         <input name="title" type="text" class="form-control"  placeholder="Find the keys" required>
-        <small id="titleHelp" class="form-text text-danger">{{ .error.Title }}</small>
+        <small data-help="titleHelp" class="form-text text-danger">{{ .error.Title }}</small>
     </div>
     <div class="form-group">
         <textarea name="content" type="text" class="form-control" id="content" placeholder="Because I lost them two weeks ago." rows="3"></textarea>
-        <small id="contentHelp" class="form-text text-danger">{{ .error.Content }}</small>
+        <small data-help="contentHelp" class="form-text text-danger">{{ .error.Content }}</small>
     </div>
     <button type="submit" class="btn btn-dark" onClick="addToodle(event)">Add</button>
 </form>
@@ -29,11 +29,11 @@
 
         <a href="/toodles/{{.ID.Hex}}" onClick="checkInput(event);">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-{{.ID.Hex}}" aria-expanded="false" aria-controls="toodleEdit">
-                {{.Title}} 
+                {{.Title}}
             </span>
         </a>
-   
-      
+
+
       <div class="abs-right">
 
         <form class="formComplete" action="/toodles/{{.ID.Hex}}/complete" method="post">
@@ -58,13 +58,14 @@
             <div class="card card-body">
                 <form action="/toodles/{{.ID.Hex}}" method="post">
                   <input name="csrf" type="hidden" value="{{$.csrfToken}}" >
-                  <input type="hidden" name="method" value="put">   
+                  <input type="hidden" name="method" value="put">
                   <div class="form-group">
                       <input name="title" type="text" value="{{.Title}}" class="form-control"  placeholder="{{.Title}}" required>
-                      <small class="form-text text-danger titleHelp"></small>
+                      <small data-help="titleHelp" class="form-text text-danger"></small>
                   </div>
                   <div class="form-group">
                         <textarea name="content" type="text" class="form-control" id="content" placeholder="{{.Content}}" rows="3">{{.Content}}</textarea>
+                        <small data-help="contentHelp" class="form-text text-danger"></small>
                   </div>
                   <button type="submit" class="btn btn-success" onClick="updateToodle(event, {{.ID.Hex}} )">Update</button>
                 </form>

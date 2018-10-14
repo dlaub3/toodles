@@ -41,7 +41,7 @@ function getCookie(cname) {
 function login(e) {
     e.preventDefault();
 
-    if(!validateLoginForm()) {
+    if(!validLoginForm()) {
         return;
     }
 
@@ -55,18 +55,18 @@ function login(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
         if (data.error || data.genError) {
-            setError(data);
+            setError(data, e.target);
         } else {
             window.location.replace(location.origin + "/toodles");
         }
         // window.sessionStorage.token = data.token;
         // It's not possible to use the httpOnly option
-        // when setting a cookie client side. 
+        // when setting a cookie client side.
         // setCookie( "authorize_token", data.token, 1 );
     });
 
@@ -75,7 +75,7 @@ function login(e) {
 function signup(e) {
     e.preventDefault();
 
-    if(!validateSignupForm()) {
+    if(!validSignupForm()) {
         return;
     }
 
@@ -89,12 +89,12 @@ function signup(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
         if (data.error || data.genError) {
-            setError(data)
+            setError(data, e.target)
         } else {
             $(".card-body").addClass("text-center");
             $("#signup").replaceWith("Your account has been created. Please <a href=\"login\">login</a>.")
@@ -118,7 +118,7 @@ function deleteToodle(e, id) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
@@ -126,7 +126,8 @@ function deleteToodle(e, id) {
             setError(error);
         } else {
             let t = e.target;
-            $(t).closest( "li" ).remove();
+            $(t).closest( "li" ).css('background', 'red')
+            $(t).closest( "li" ).fadeOut();
             decriment('.activeToodles', 1);
         }
     });
@@ -136,7 +137,7 @@ function addToodle(e) {
     e.preventDefault();
     let t = e.target;
     let form = $(t).closest("form");
-    if(!validateToodle(form)) {
+    if(!validToodle(form)) {
         return;
     }
 
@@ -150,18 +151,18 @@ function addToodle(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
         if (data.error || data.genError) {
-            setError(data);
+            setError(data, e.target);
         } else {
             data = data.toodle;
             resetForm(form);
             let cookie = getCookie("csrf");
             let toodle = getToodleHTML(data.id, data.title, data.content, cookie);
-            $("ul").append(toodle);
+            $("ul").append(toodle).hide().fadeIn();
             increment('.activeToodles', 1);
         }
     });
@@ -173,7 +174,7 @@ function updateToodle(e, id) {
 
     let t = e.target;
     let form = $(t).closest("form");
-    if(!validateToodle(form)) {
+    if(!validToodle(form)) {
         return;
     }
 
@@ -188,12 +189,12 @@ function updateToodle(e, id) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
         if (data.error || data.genError) {
-            setError(data);
+            setError(data, e.target);
         } else {
             data = data.toodle;
             $(t).closest( "li" ).find(".title").text(data.title);
@@ -218,12 +219,12 @@ function completeToodle(e, id) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => { 
+    .then(response => {
         return response.json();
     })
     .then(data => {
         if (data.error || data.genError) {
-            setError(data);
+            setError(data, e.target);
         } else {
             let toodle = $(t).closest( "li" );
             toodle.css('background', 'green')
@@ -240,10 +241,10 @@ function getToodleHTML(id, title, content, cookie) {
 
         <a href="/toodles/${id}" onClick="checkInput(event);">
             <span class="title" data-toggle="collapse" data-target="#toodleEdit-${id}" aria-expanded="false" aria-controls="toodleEdit">
-                ${title}  
+                ${title}
             </span>
         </a>
-        
+
         <div class="abs-right">
 
             <form class="formComplete" action="/toodles/${id}" method="post">
@@ -271,11 +272,12 @@ function getToodleHTML(id, title, content, cookie) {
                         <input type="hidden" name="method" value="put">
                         <div class="form-group">
                             <input name="title" type="text" value="${title}" class="form-control" id="title" placeholder="${title}" required>
-                            <small class="form-text text-danger titleHelp"></small>
+                            <small data-help="titleHelp" class="form-text text-danger"></small>
                         </div>
                         <div class="form-group">
                             <textarea name="content" type="text" class="form-control" id="content" placeholder="${content}" rows="3">${content}</textarea>
-                        </div>
+                            <small data-help="contentHelp" class="form-text text-danger"></small>
+                          </div>
                         <button type="submit" class="btn btn-success" onClick="updateToodle(event,'${id}')">Update</button>
                     </form>
                 </div>
@@ -314,20 +316,20 @@ function getGenErrorHTML(msg) {
 `;
 }
 
-function setError(data) {
-    if(data.genError) {
-        let msg = data.genError;
-        $("#generalHelp").html(getGenErrorHTML(msg));
-        window.scrollTo(0, 0);
-        return;
-    }
-    if(data.error) {
-        let err = data.error
-        for (let prop in err) {
-            let field =  "#" + prop.toLowerCase() + "Help";
-            $(field).text(err[prop]);
-        }
-    }
+function setError(data, target) {
+  if(data.genError) {
+      let msg = data.genError;
+      $("#generalHelp").html(getGenErrorHTML(msg));
+      window.scrollTo(0, 0);
+      return;
+  }
+  if(data.error) {
+      let err = data.error
+      for (let prop in err) {
+          let field = 'small[data-help=' + prop.toLowerCase() + 'Help]';
+          $(target).parent('form').find(field).text(err[prop]);
+      }
+  }
 }
 
 function decriment(target, n) {
@@ -342,24 +344,27 @@ function increment(target, n) {
     $(target).find("span").text(cur + n);
 }
 
-function validateEmail(target) {
+function isValidEmail(target) {
     let email = $(target).val();
     return email.includes('@');
   }
 
-function validatePassword(target) {
+function isValidPassword(target) {
     let password = $(target).val();
     return password.length > 3;
 }
 
-function validateTitle(target) {
-    return $(target).find('input[name="title"]').val().trim() !== "";
+function hasField(target, field) {
+    return $(target).find(field).val().trim() !== "";
 }
 
-function validateLoginForm() {
+function fieldLength(target, field) {
+  return  $(target).find(field).val().trim().length;
+}
 
-    let validEmail = validateEmail('#email');
-    let validPassword = validatePassword('#password');
+function validLoginForm(form) {
+    let validEmail = isValidEmail('#email');
+    let validPassword = isValidPassword('#password');
 
     validEmail ? $("#emailHelp").text("") : $("#emailHelp").text("Please enter a valid email.");
     validPassword ? $("#passwordHelp").text("") : $("#passwordHelp").text("Don't forget your password.");
@@ -367,10 +372,9 @@ function validateLoginForm() {
     return validEmail && validPassword;
 }
 
-function validateSignupForm() {
-
-    let validEmail = validateEmail('#email');
-    let validPassword = validatePassword('#password');
+function validSignupForm(from) {
+    let validEmail = isValidEmail('#email');
+    let validPassword = isValidPassword('#password');
 
     validEmail ? $("#emailHelp").text("") : $("#emailHelp").text("Please enter a valid email.");
     validPassword ? $("#passwordHelp").text("") : $("#passwordHelp").text("Your password should be at least 4 characters.");
@@ -378,12 +382,21 @@ function validateSignupForm() {
     return validEmail && validPassword;
 }
 
-function validateToodle(form) {
-    let validTitle = validateTitle(form);
+function resetErrors(form) {
+  $(form).find('small[data-help]').each((i, item) => {
+      item.innerHTML = "";
+  });
+}
 
-    validTitle ? $(form).find(".titleHelp").text("") : $(form).find(".titleHelp").text("Title should not be  empty.");
+function validToodle(form) {
+    resetErrors(form);
+    let hasTitle = hasField(form, 'input[name=title]');
+    let contentLength = fieldLength(form, 'textarea[name=content]');
 
-    return validTitle;
+    hasTitle || $(form).find("small[data-help=titleHelp]").text("Title should not be empty.");
+    contentLength < 2000 || $(form).find("small[data-help=contentHelp]").text("Content should be less than 2000 characters.");
+
+    return hasTitle && contentLength < 2000;
 }
 
 function resetForm(form) {

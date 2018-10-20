@@ -8,11 +8,11 @@ func initRoutes() {
 
 	// gin.SetMode(gin.ReleaseMode)
 	r = gin.New()
-	r.Use(gin.Recovery())
+	// r.Use(gin.Recovery())
 	// r.Use(gin.Logger())
 	r.Use(middlewareCSRF())
 	r.Use(middlewareErrors())
-	// r.Use(middlewareRecover())
+	r.Use(middlewareRecover())
 
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")

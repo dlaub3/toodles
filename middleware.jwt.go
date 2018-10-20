@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -11,13 +13,16 @@ import (
 )
 
 func jwtMiddleware() *jwt.GinJWTMiddleware {
+
 	type login struct {
 		Username string `form:"username" json:"username" binding:"required"`
 		Password string `form:"password" json:"password" binding:"required"`
 	}
+
 	identityKey := "uid"
+
 	// the JWT middleware
-	authMiddleware := &jwt.GinJWTMiddleware{
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		SigningAlgorithm: "HS256",
 		SendCookie:       true,
 		SecureCookie:     false, //non HTTPS dev environments
@@ -52,6 +57,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
+			fmt.Println("unauth")
 			if c.Request.URL.Path == "/login" {
 				showLoginPage(c)
 			} else {
@@ -59,6 +65,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
+			fmt.Println("auth")
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
@@ -75,13 +82,13 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			errors["Email"] = "Your username and password do not match."
 
 			if err != nil {
-				c.Set("httpStatus", 401)
+				c.Set("httpStatus", http.StatusUnauthorized)
 				c.Set("error", errors)
 				return nil, jwt.ErrFailedAuthentication
 			}
 			hash := user.Password
 			if crypt.CheckPasswordHash(password, hash, 32) != true {
-				c.Set("httpStatus", 401)
+				c.Set("httpStatus", http.StatusUnauthorized)
 				c.Set("error", errors)
 				return nil, jwt.ErrFailedAuthentication
 			}
@@ -108,6 +115,10 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 
 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
+	})
+
+	if err != nil {
+		log.Fatal("JWT Error:" + err.Error())
 	}
 
 	return authMiddleware

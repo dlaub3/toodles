@@ -19,7 +19,11 @@ func middlewareCSRF() gin.HandlerFunc {
 		if c.Request.Method != "GET" {
 			validCsrf := isCSRFTokenValid(c)
 			if !validCsrf {
-				c.AbortWithError(http.StatusInternalServerError, errorInternalError).SetType(gin.ErrorTypePublic)
+				c.Set("httpStatus", http.StatusBadRequest)
+				c.Set("error", "refresh")
+				showErrorPage(c)
+				c.Abort()
+				return
 			}
 		}
 

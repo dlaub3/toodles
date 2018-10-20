@@ -55,9 +55,7 @@ function login(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => {
-        return response.json();
-    })
+    .then(response => handleResponse(response))
     .then(data => {
         if (data.error || data.genError) {
             setError(data, e.target);
@@ -89,9 +87,7 @@ function signup(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => {
-        return response.json();
-    })
+    .then(response => handleResponse(response))
     .then(data => {
         if (data.error || data.genError) {
             setError(data, e.target)
@@ -118,9 +114,7 @@ function deleteToodle(e, id) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => {
-        return response.json();
-    })
+    .then(response => handleResponse(response))
     .then(data => {
         if (data.error || data.genError) {
             setError(error);
@@ -151,9 +145,7 @@ function addToodle(e) {
     },
     body: JSON.stringify(formData),
     })
-    .then(response => {
-        return response.json();
-    })
+    .then(response => handleResponse(response))
     .then(data => {
         if (data.error || data.genError) {
             setError(data, e.target);
@@ -295,12 +287,13 @@ function checkInput(event) {
     $(t).closest('li').find("input[type=checkbox]").prop("checked", !currentState);
 }
 
-function handleError(status) {
-    if (status == 401) {
+function handleResponse(response) {
+    if (response.status === 401 && window.location.pathname !== '/login') {
         window.location.replace(location.origin + "/login");
-    } else {
-        console.log(error)
+        return false;
     }
+    
+    return response.json();
 }
 
 function getGenErrorHTML(msg) {
@@ -322,8 +315,11 @@ function setError(data, target) {
       $("#generalHelp").html(getGenErrorHTML(msg));
       window.scrollTo(0, 0);
       return;
-  }
-  if(data.error) {
+  } else if (data.error === "refresh") {
+    window.location.reload();
+  } else if (data.redirect) {
+    window.location.replace( window.location.origin + data.redirect);
+  } else if (data.error) {
       let err = data.error
       for (let prop in err) {
           let field = 'small[data-help=' + prop.toLowerCase() + 'Help]';

@@ -117,9 +117,10 @@ func getGeneralErrorMsg(key string) map[string]string {
 func handleUnauthorized(c *gin.Context) {
 	contentType := c.Request.Header.Get("Content-Type")
 	if contentType == "application/json" {
-		c.Set("error", "unauthorized")
-		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.Set("redirect", "/login")
+		c.Set("httpStatus", http.StatusUnauthorized)
+		showErrorPage(c)
 	} else {
-		c.Redirect(302, "/login")
+		c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 }

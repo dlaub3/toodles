@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -57,7 +56,6 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			fmt.Println("unauth")
 			if c.Request.URL.Path == "/login" {
 				showLoginPage(c)
 			} else {
@@ -65,7 +63,6 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			fmt.Println("auth")
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
